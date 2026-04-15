@@ -51,7 +51,7 @@ Then run:
 ```sql
 CREATE DATABASE metro;
 USE metro;
--- Paste and run all SQL from Metro_DB_Sql_Code.pdf
+-- Paste and run all SQL from Metro_DB_Sql_Code.txt
 ```
 
 ### 3. Configure Database Connection
