@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Suppliers — Metro Superstore{% endblock %}
+
+{% block head %}
+<style>
+  .page-hero { background: linear-gradient(135deg, #0f1a3d, #1e2d6b); }
+  .page-hero h1 { color: #fff; }
+  .page-hero p { color: #a0b0d8; }
+
+  .sup-list { display: flex; flex-direction: column; gap: 1rem; }
+  .sup-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    padding: 1.4rem 1.75rem;
+    display: grid; grid-template-columns: 56px 1fr auto auto; align-items: center; gap: 1.5rem;
+    transition: all 0.2s;
+  }
+  .sup-card:hover { border-color: #2a4d7a; box-shadow: 0 6px 24px rgba(42,77,122,0.1); }
+  .sup-icon {
+    width: 52px; height: 52px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+  }
+  .sup-info h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+  .sup-info p { font-size: 0.8rem; color: var(--stone); }
+  .sup-products { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+  @media(max-width:640px){
+    .sup-card { grid-template-columns:56px 1fr; }
+    .sup-products, .sup-card .btn { display:none; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="eyebrow">Supply Chain</div>
+  <h1>Suppliers</h1>
+  <p>Our trusted network of supply chain partners</p>
+</div>
+
+<div class="wrap">
+  <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;margin-bottom:1.5rem;">Supplier Directory</h2>
+  {% set bg_list = ['#e8f5ee','#e8edf8','#f5f0e0','#f5e8f5','#e8f5f0'] %}
+  {% set ico_list = ['🌾','💻','📦','🚛','🏥'] %}
+  <div class="sup-list">
+    {% for s in suppliers %}
+    <!-- s: S_ID, Name, Contact_No, Products(grouped) -->
+    <div class="sup-card">
+      <div class="sup-icon" style="background:{{ bg_list[loop.index0 % bg_list|length] }}">
+        {{ ico_list[loop.index0 % ico_list|length] }}
+      </div>
+      <div class="sup-info">
+        <h3>{{ s[1] }}</h3>
+        <p>ID: {{ s[0] }} &nbsp;·&nbsp; 📞 {{ s[2] }}</p>
+      </div>
+      <div class="sup-products">
+        {% if s[3] %}
+          {% for prod in s[3].split(', ') %}
+          <span class="badge badge-green">{{ prod }}</span>
+          {% endfor %}
+        {% else %}
+        <span class="badge badge-amber">No products linked</span>
+        {% endif %}
+      </div>
+      <button class="btn btn-ghost btn-sm">Contact</button>
+    </div>
+    {% else %}
+    <p style="color:var(--stone);">No suppliers found.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

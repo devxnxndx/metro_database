@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% block title %}Metro Superstore — Home{% endblock %}
+
+{% block head %}
+<style>
+  .hero {
+    background: linear-gradient(135deg, var(--ink) 0%, #132d1f 55%, var(--forest) 100%);
+    padding: 6rem 2.5rem 5rem;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+    position: relative; overflow: hidden; min-height: 88vh;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -100px; right: -100px;
+    width: 600px; height: 600px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,134,10,0.12) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .hero-text { position: relative; z-index:1; }
+  .hero-eyebrow {
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--sage); margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .hero-eyebrow::before { content:''; display:inline-block; width:28px; height:1px; background:var(--sage); }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 5rem; font-weight: 700; line-height: 1.05;
+    color: #fff; margin-bottom: 1.5rem;
+  }
+  .hero h1 em { color: var(--gold); font-style: normal; display: block; }
+  .hero-sub { color: #7da98e; font-size: 1rem; line-height: 1.8; max-width: 420px; margin-bottom: 2.5rem; }
+  .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .hero-btns .btn { padding: 0.85rem 2rem; font-size: 0.9rem; }
+
+  .hero-stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    position: relative; z-index:1;
+  }
+  .stat-tile {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px; padding: 1.75rem;
+    backdrop-filter: blur(8px);
+    transition: all 0.25s;
+  }
+  .stat-tile:hover { background: rgba(255,255,255,0.1); border-color: rgba(232,160,32,0.3); transform:translateY(-3px); }
+  .stat-tile .ico { font-size: 2rem; margin-bottom: 0.75rem; }
+  .stat-tile .num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.8rem; font-weight: 700; color: var(--gold); line-height: 1;
+  }
+  .stat-tile .lbl { color: #7da98e; font-size: 0.78rem; margin-top: 0.3rem; letter-spacing: 0.5px; }
+
+  /* Feature section */
+  .features-section { padding: 5rem 2.5rem; max-width: 1160px; margin: 0 auto; }
+  .section-eyebrow {
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--sage); margin-bottom: 0.6rem;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; font-weight: 700;
+    color: var(--ink); margin-bottom: 0.75rem;
+  }
+  .section-sub { color: var(--stone); font-size: 0.95rem; max-width: 500px; line-height: 1.75; margin-bottom: 3rem; }
+
+  .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  .feature-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 2rem;
+    transition: all 0.25s; position: relative; overflow: hidden;
+  }
+  .feature-card::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    background: var(--forest); transform: scaleX(0); transform-origin: left;
+    transition: transform 0.3s;
+  }
+  .feature-card:hover { box-shadow: 0 12px 36px rgba(27,77,53,0.12); transform: translateY(-4px); border-color: var(--mint); }
+  .feature-card:hover::after { transform: scaleX(1); }
+  .feature-card .f-icon {
+    width: 48px; height: 48px; background: var(--mint); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+    margin-bottom: 1.25rem;
+  }
+  .feature-card h3 {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; margin-bottom: 0.5rem;
+  }
+  .feature-card p { color: var(--stone); font-size: 0.85rem; line-height: 1.7; }
+  .feature-card a {
+    display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 1.25rem;
+    color: var(--forest); font-size: 0.82rem; font-weight: 600; text-decoration: none;
+    letter-spacing: 0.5px;
+  }
+  .feature-card a:hover { color: var(--amber); }
+
+  /* Ticker strip */
+  .ticker {
+    background: var(--forest); overflow: hidden; height: 42px;
+    display: flex; align-items: center;
+  }
+  .ticker-inner {
+    display: flex; gap: 3rem; white-space: nowrap;
+    animation: ticker 22s linear infinite;
+    font-size: 0.78rem; font-weight: 500; color: #c8ead8; letter-spacing: 1px;
+  }
+  .ticker-inner span { display: flex; align-items: center; gap: 0.5rem; }
+  .ticker-dot { width: 5px; height: 5px; background: var(--gold); border-radius: 50%; }
+  @keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  @media(max-width:900px){
+    .hero { grid-template-columns:1fr; padding:4rem 1.5rem; min-height:auto; }
+    .hero h1 { font-size:3.2rem; }
+    .feature-grid { grid-template-columns:1fr 1fr; }
+  }
+  @media(max-width:600px){
+    .feature-grid { grid-template-columns:1fr; }
+    .hero-stats { grid-template-columns:1fr 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Ticker -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span><span class="ticker-dot"></span> DAIRY</span>
+    <span><span class="ticker-dot"></span> ELECTRONICS</span>
+    <span><span class="ticker-dot"></span> SNACKS</span>
+    <span><span class="ticker-dot"></span> STATIONERY</span>
+    <span><span class="ticker-dot"></span> MEDICINE</span>
+    <span><span class="ticker-dot"></span> FRESH QUALITY</span>
+    <span><span class="ticker-dot"></span> TRUSTED SUPPLIERS</span>
+    <span><span class="ticker-dot"></span> 5 DEPARTMENTS</span>
+    <span><span class="ticker-dot"></span> DAIRY</span>
+    <span><span class="ticker-dot"></span> ELECTRONICS</span>
+    <span><span class="ticker-dot"></span> SNACKS</span>
+    <span><span class="ticker-dot"></span> STATIONERY</span>
+    <span><span class="ticker-dot"></span> MEDICINE</span>
+    <span><span class="ticker-dot"></span> FRESH QUALITY</span>
+    <span><span class="ticker-dot"></span> TRUSTED SUPPLIERS</span>
+    <span><span class="ticker-dot"></span> 5 DEPARTMENTS</span>
+  </div>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-text">
+    <div class="hero-eyebrow">Since 2024 · DBMS Project</div>
+    <h1>Your Local<em>Superstore.</em></h1>
+    <p class="hero-sub">Metro brings quality products, seamless service, and smart inventory management all under one roof. Fresh, fast, and always stocked.</p>
+    <div class="hero-btns">
+      <a href="/products" class="btn btn-gold">Browse Products</a>
+      <a href="/customers" class="btn btn-ghost" style="color:#c8ead8;border-color:rgba(200,234,216,0.4)">Customer Portal</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-tile"><div class="ico">📦</div><div class="num">{{ stats.products }}</div><div class="lbl">Products in Stock</div></div>
+    <div class="stat-tile"><div class="ico">👥</div><div class="num">{{ stats.customers }}</div><div class="lbl">Registered Customers</div></div>
+    <div class="stat-tile"><div class="ico">🧑‍💼</div><div class="num">{{ stats.employees }}</div><div class="lbl">Staff Members</div></div>
+    <div class="stat-tile"><div class="ico">🚛</div><div class="num">{{ stats.suppliers }}</div><div class="lbl">Supply Partners</div></div>
+  </div>
+</div>
+
+<!-- Features -->
+<div class="features-section">
+  <div class="section-eyebrow">What We Offer</div>
+  <h2 class="section-title">Everything in One Place</h2>
+  <p class="section-sub">From fresh dairy to the latest electronics, Metro covers all your daily needs with premium quality and smart management.</p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="f-icon">🥛</div>
+      <h3>Fresh Products</h3>
+      <p>Dairy, snacks, and perishables sourced from trusted suppliers with tracked expiry dates and live inventory.</p>
+      <a href="/products">View Products →</a>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon">💊</div>
+      <h3>Health & Medicine</h3>
+      <p>Licensed pharmaceutical products from Square Pharma with proper inventory management and expiry tracking.</p>
+      <a href="/products">Explore →</a>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon">📱</div>
+      <h3>Electronics</h3>
+      <p>Samsung and top-brand electronics with expert guidance and comprehensive warranty coverage.</p>
+      <a href="/products">Shop Now →</a>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon">🚛</div>
+      <h3>Fast Logistics</h3>
+      <p>Our logistics department ensures timely restocking and efficient warehouse management across all branches.</p>
+      <a href="/suppliers">Our Suppliers →</a>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon">🧑‍💼</div>
+      <h3>Expert Staff</h3>
+      <p>Trained employees across 5 departments — Sales, HR, Inventory, Logistics and Customer Service.</p>
+      <a href="/employees">Meet the Team →</a>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon">📊</div>
+      <h3>Sales Insights</h3>
+      <p>Real-time daily sales tracking and expense analysis for smarter, data-driven business decisions.</p>
+      <a href="/sales">View Reports →</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

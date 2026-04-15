@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Products — Metro Superstore{% endblock %}
+
+{% block head %}
+<style>
+  .page-hero { background: linear-gradient(135deg, var(--ink) 0%, #0f2d1c 100%); }
+  .page-hero h1, .page-hero .eyebrow, .page-hero p { color-adjust: exact; }
+  .page-hero h1 { color: #fff; }
+  .page-hero p { color: #7da98e; }
+
+  .filter-bar {
+    background: #fff; border-bottom: 1px solid var(--line);
+    padding: 0.85rem 2.5rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+  }
+  .filter-bar label { font-size: 0.75rem; color: var(--stone); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-right: 0.25rem; }
+  .filter-chip {
+    padding: 0.38rem 1rem; border-radius: 20px; border: 1.5px solid var(--line);
+    background: #fff; cursor: pointer; font-size: 0.8rem; font-family: 'Outfit', sans-serif;
+    transition: all 0.18s; font-weight: 500;
+  }
+  .filter-chip:hover { border-color: var(--sage); color: var(--forest); }
+  .filter-chip.on { background: var(--forest); color: #fff; border-color: var(--forest); }
+
+  .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+  .p-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+    transition: all 0.25s;
+  }
+  .p-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(27,77,53,0.13); border-color: var(--sage); }
+  .p-card-img {
+    height: 140px; display: flex; align-items: center; justify-content: center;
+    font-size: 3.5rem;
+  }
+  .bg-dairy   { background: linear-gradient(135deg,#e8f5ee,#c8e6d4); }
+  .bg-elec    { background: linear-gradient(135deg,#e8edf5,#c8d4e6); }
+  .bg-snack   { background: linear-gradient(135deg,#f5f0e0,#e6d8b8); }
+  .bg-stat    { background: linear-gradient(135deg,#f5e8f5,#e6c8e6); }
+  .bg-med     { background: linear-gradient(135deg,#e8f5f0,#c8e6dc); }
+  .p-body { padding: 1.1rem 1.25rem; }
+  .p-type { font-size: 0.68rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--sage); }
+  .p-name { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 700; margin: 0.25rem 0 0.5rem; }
+  .p-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; }
+  .p-price { font-size: 1.25rem; font-weight: 700; color: var(--forest); }
+  .p-qty { font-size: 0.78rem; color: var(--stone); }
+  .p-foot { padding: 0.25rem 1.25rem 1.1rem; }
+  .p-expiry { font-size: 0.73rem; color: var(--stone); margin-bottom: 0.6rem; }
+  .p-actions { display: flex; gap: 0.5rem; }
+  .p-actions .btn { flex:1; justify-content:center; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="eyebrow">Our Inventory</div>
+  <h1>Products</h1>
+  <p>Browse all products available across Metro Superstore departments</p>
+</div>
+
+<div class="filter-bar">
+  <label>Filter:</label>
+  <button class="filter-chip on" onclick="filter('All',this)">All</button>
+  <button class="filter-chip" onclick="filter('Dairy',this)">🥛 Dairy</button>
+  <button class="filter-chip" onclick="filter('Electronics',this)">📱 Electronics</button>
+  <button class="filter-chip" onclick="filter('Snacks',this)">🍟 Snacks</button>
+  <button class="filter-chip" onclick="filter('Stationery',this)">✏️ Stationery</button>
+  <button class="filter-chip" onclick="filter('Medicine',this)">💊 Medicine</button>
+</div>
+
+<div class="wrap">
+  <div class="products-grid" id="grid">
+  {% set icons = {'Dairy':'🥛','Electronics':'📱','Snacks':'🍟','Stationery':'✏️','Medicine':'💊'} %}
+  {% set bgs   = {'Dairy':'bg-dairy','Electronics':'bg-elec','Snacks':'bg-snack','Stationery':'bg-stat','Medicine':'bg-med'} %}
+  {% for p in products %}
+  <!-- p: P_ID, Type, Quantity, Cost, Expiry, Manufacturer -->
+  <div class="p-card" data-type="{{ p[1] }}">
+    <div class="p-card-img {{ bgs.get(p[1],'bg-dairy') }}">{{ icons.get(p[1],'🛒') }}</div>
+    <div class="p-body">
+      <div class="p-type">{{ p[1] }}</div>
+      <div class="p-name">{{ p[5] }}</div>
+      <div class="p-meta">
+        <span class="p-price">₹{{ p[3] }}</span>
+        <span class="p-qty">{{ p[2] }} units</span>
+      </div>
+    </div>
+    <div class="p-foot">
+      <div class="p-expiry">📅 Expires: {{ p[4] }} &nbsp;|&nbsp; ID: {{ p[0] }}</div>
+      <div class="p-actions">
+        <button class="btn btn-primary btn-sm">Add to Cart</button>
+        <button class="btn btn-ghost btn-sm">Details</button>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <p style="color:var(--stone); padding:2rem 0;">No products found. Make sure the database is connected.</p>
+  {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function filter(type, btn) {
+  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.p-card').forEach(c => {
+    c.style.display = (type === 'All' || c.dataset.type === type) ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}

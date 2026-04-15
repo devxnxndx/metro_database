@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Employees — Metro Superstore{% endblock %}
+
+{% block head %}
+<style>
+  .page-hero { background: linear-gradient(135deg, #1a0f0f, #3d1a1a); }
+  .page-hero h1 { color: #fff; }
+  .page-hero p { color: #c8a0a0; }
+
+  .emp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1.25rem; margin-bottom: 3rem; }
+  .emp-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    padding: 1.75rem 1.25rem; text-align: center; transition: all 0.25s;
+  }
+  .emp-card:hover { transform: translateY(-5px); box-shadow: 0 14px 36px rgba(0,0,0,0.1); border-color: var(--amber); }
+  .emp-av {
+    width: 68px; height: 68px; border-radius: 50%; margin: 0 auto 1rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; font-weight: 700; color: #fff;
+  }
+  .emp-card h3 { font-size: 0.98rem; font-weight: 600; margin-bottom: 0.3rem; }
+  .emp-dept { margin-bottom: 0.85rem; }
+  .emp-stats { border-top: 1px solid var(--line); padding-top: 0.85rem; margin-top: 0.25rem; }
+  .emp-stat-row { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--stone); margin-bottom: 0.3rem; }
+  .emp-stat-row span { font-weight: 600; color: var(--ink); }
+
+  .dept-section h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.75rem; margin-bottom: 1.25rem; }
+  .dept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+  .dept-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 1.25rem; transition: all 0.2s; }
+  .dept-card:hover { border-color: var(--sage); box-shadow: 0 4px 14px rgba(27,77,53,0.09); }
+  .dept-card .d-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .dept-card h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.2rem; }
+  .dept-card .d-loc { font-size: 0.78rem; color: var(--stone); }
+  .dept-card .d-head { font-size: 0.78rem; color: var(--forest); font-weight: 600; margin-top: 0.4rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="eyebrow">Our People</div>
+  <h1>Employees</h1>
+  <p>Meet the Metro team across all departments</p>
+</div>
+
+<div class="wrap">
+  <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;margin-bottom:1.25rem;">Staff Directory</h2>
+
+  {% set palette = ['linear-gradient(135deg,#1b4d35,#2d9e5e)','linear-gradient(135deg,#7a5200,#c8860a)','linear-gradient(135deg,#2a4d7a,#4a7fb5)','linear-gradient(135deg,#7a1f1f,#c05050)','linear-gradient(135deg,#4a2a7a,#7e5fc0)'] %}
+  <div class="emp-grid">
+    {% for e in employees %}
+    <!-- e: E_ID, Name, Dept, DOB, Salary -->
+    <div class="emp-card">
+      <div class="emp-av" style="background:{{ palette[loop.index0 % palette|length] }}">
+        {{ e[1][:2].upper() }}
+      </div>
+      <h3>{{ e[1] }}</h3>
+      <div class="emp-dept"><span class="badge badge-green">{{ e[2] or 'N/A' }}</span></div>
+      <div class="emp-stats">
+        <div class="emp-stat-row">DOB <span>{{ e[3] }}</span></div>
+        <div class="emp-stat-row">Salary <span>₹{{ e[4] }}</span></div>
+        <div class="emp-stat-row">ID <span>#{{ e[0] }}</span></div>
+      </div>
+    </div>
+    {% else %}
+    <p style="color:var(--stone);">No employees found.</p>
+    {% endfor %}
+  </div>
+
+  <div class="dept-section">
+    <h2>Departments</h2>
+    <div class="dept-grid">
+      <div class="dept-card"><div class="d-icon">📈</div><h4>Sales & Marketing</h4><div class="d-loc">Block A</div><div class="d-head">Head: Alice Johnson</div></div>
+      <div class="dept-card"><div class="d-icon">🤝</div><h4>Customer Service</h4><div class="d-loc">Block B</div><div class="d-head">Head: Robert Smith</div></div>
+      <div class="dept-card"><div class="d-icon">📦</div><h4>Inventory</h4><div class="d-loc">Warehouse 1</div><div class="d-head">Head: Sarah Lee</div></div>
+      <div class="dept-card"><div class="d-icon">👥</div><h4>Human Resources</h4><div class="d-loc">Block C</div><div class="d-head">Head: Michael Scott</div></div>
+      <div class="dept-card"><div class="d-icon">🚛</div><h4>Logistics</h4><div class="d-loc">Warehouse 2</div><div class="d-head">Head: Kevin Malone</div></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

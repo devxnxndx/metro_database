@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Metro Superstore{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:    #0d1f17;
+      --forest: #1b4d35;
+      --sage:   #3a7d5a;
+      --mint:   #c8ead8;
+      --amber:  #c8860a;
+      --gold:   #e8a020;
+      --cream:  #f7f3ec;
+      --paper:  #fdfaf5;
+      --stone:  #9e9488;
+      --line:   #e5dfd5;
+      --red:    #a33030;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family:'Outfit',sans-serif; background:var(--paper); color:var(--ink); min-height:100vh; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top:0; z-index:200;
+      background: var(--ink);
+      display: flex; align-items:center; justify-content:space-between;
+      padding: 0 2.5rem; height:64px;
+      border-bottom: 2px solid var(--forest);
+    }
+    .nav-logo {
+      font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:700;
+      color:var(--gold); letter-spacing:3px; text-decoration:none;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .nav-logo .dot { width:7px; height:7px; background:var(--sage); border-radius:50%; display:inline-block; }
+    .nav-links { display:flex; gap:0.25rem; list-style:none; }
+    .nav-links a {
+      color:#b8c4be; text-decoration:none; font-size:0.78rem; font-weight:500;
+      letter-spacing:1.5px; text-transform:uppercase;
+      padding:0.5rem 0.9rem; border-radius:4px;
+      transition: all 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color:var(--gold); background:rgba(200,134,10,0.1); }
+
+    /* ── FLASH MESSAGES ── */
+    .flash-wrap { position:fixed; top:72px; right:1.5rem; z-index:300; display:flex; flex-direction:column; gap:0.5rem; }
+    .flash {
+      padding:0.8rem 1.25rem; border-radius:8px; font-size:0.88rem; font-weight:500;
+      display:flex; align-items:center; gap:0.5rem;
+      animation: slideIn 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      max-width:320px;
+    }
+    .flash.success { background:var(--forest); color:#d4f0e2; }
+    .flash.error   { background:var(--red);    color:#fde8e8; }
+    @keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+
+    /* ── PAGE HEADER ── */
+    .page-hero {
+      padding: 3.5rem 2.5rem 2.5rem;
+      position: relative; overflow:hidden;
+    }
+    .page-hero::after {
+      content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
+      background: linear-gradient(90deg, transparent, var(--line), transparent);
+    }
+    .page-hero .eyebrow {
+      font-size:0.7rem; font-weight:600; letter-spacing:3px; text-transform:uppercase;
+      color:var(--sage); margin-bottom:0.6rem;
+    }
+    .page-hero h1 {
+      font-family:'Cormorant Garamond',serif; font-size:3rem; font-weight:700;
+      color:var(--ink); line-height:1.1; margin-bottom:0.6rem;
+    }
+    .page-hero p { color:var(--stone); font-size:0.95rem; }
+
+    /* ── MAIN WRAPPER ── */
+    .wrap { max-width:1160px; margin:0 auto; padding:2.5rem 2.5rem; }
+
+    /* ── CARDS ── */
+    .card {
+      background:#fff; border:1px solid var(--line); border-radius:12px;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .card:hover { box-shadow:0 6px 28px rgba(27,77,53,0.1); border-color:var(--sage); }
+
+    /* ── BADGES ── */
+    .badge {
+      display:inline-block; padding:0.25rem 0.7rem; border-radius:20px;
+      font-size:0.7rem; font-weight:600; letter-spacing:0.5px;
+    }
+    .badge-green { background:var(--mint); color:var(--forest); }
+    .badge-amber { background:#faecd0; color:#7a5200; }
+    .badge-blue  { background:#dde8f5; color:#1e3a5f; }
+    .badge-red   { background:#f5dddd; color:#7a1f1f; }
+    .badge-purple{ background:#ede8f5; color:#3d1e7a; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display:inline-flex; align-items:center; gap:0.4rem;
+      padding:0.6rem 1.4rem; border-radius:6px; border:none;
+      font-family:'Outfit',sans-serif; font-size:0.85rem; font-weight:500;
+      cursor:pointer; text-decoration:none; transition:all 0.2s;
+    }
+    .btn-primary { background:var(--forest); color:#fff; }
+    .btn-primary:hover { background:#143d28; transform:translateY(-1px); box-shadow:0 4px 14px rgba(27,77,53,0.35); }
+    .btn-gold { background:var(--gold); color:var(--ink); }
+    .btn-gold:hover { background:#d4920e; transform:translateY(-1px); }
+    .btn-ghost { background:transparent; color:var(--forest); border:1.5px solid var(--sage); }
+    .btn-ghost:hover { background:var(--mint); }
+    .btn-sm { padding:0.4rem 0.9rem; font-size:0.78rem; }
+
+    /* ── TABLES ── */
+    .table-wrap { background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+    .table-wrap .table-header { padding:1.25rem 1.5rem; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; }
+    .table-wrap .table-header h3 { font-family:'Cormorant Garamond',serif; font-size:1.3rem; }
+    table { width:100%; border-collapse:collapse; }
+    thead tr { background:#f9f7f3; }
+    th { padding:0.7rem 1.25rem; text-align:left; font-size:0.72rem; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--stone); border-bottom:1px solid var(--line); }
+    td { padding:0.85rem 1.25rem; font-size:0.88rem; border-bottom:1px solid #f5f0e8; }
+    tbody tr:last-child td { border-bottom:none; }
+    tbody tr:hover td { background:#fdfaf5; }
+
+    /* ── FORM ELEMENTS ── */
+    .form-group { margin-bottom:1rem; }
+    label { display:block; font-size:0.78rem; font-weight:600; letter-spacing:0.5px; color:var(--stone); margin-bottom:0.35rem; text-transform:uppercase; }
+    input, select, textarea {
+      width:100%; padding:0.65rem 0.9rem;
+      border:1.5px solid var(--line); border-radius:7px;
+      font-family:'Outfit',sans-serif; font-size:0.9rem;
+      background:#fdfaf5; color:var(--ink);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline:none; border-color:var(--sage);
+      box-shadow: 0 0 0 3px rgba(58,125,90,0.12);
+      background:#fff;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background:var(--ink); color:#6a7a72;
+      text-align:center; padding:1.75rem 2rem;
+      font-size:0.8rem; margin-top:5rem;
+      border-top:2px solid var(--forest);
+    }
+    footer strong { color:var(--gold); font-weight:500; }
+
+    /* ── KPI CARD ── */
+    .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1rem; margin-bottom:2rem; }
+    .kpi-card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:1.4rem 1.5rem; }
+    .kpi-card .kpi-val { font-family:'Cormorant Garamond',serif; font-size:2.2rem; font-weight:700; line-height:1; }
+    .kpi-card .kpi-label { font-size:0.72rem; color:var(--stone); text-transform:uppercase; letter-spacing:1px; margin-top:0.3rem; }
+    .kpi-card.green .kpi-val { color:var(--forest); }
+    .kpi-card.amber .kpi-val { color:var(--amber); }
+    .kpi-card.blue  .kpi-val { color:#2a4d7a; }
+    .kpi-card.red   .kpi-val { color:var(--red); }
+
+    /* ── GRID UTILITIES ── */
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+    .grid-auto { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:1.25rem; }
+
+    @media(max-width:768px){
+      nav { padding:0 1rem; }
+      .nav-links { display:none; }
+      .wrap { padding:1.5rem 1rem; }
+      .grid-2,.grid-3 { grid-template-columns:1fr; }
+      .page-hero { padding:2rem 1rem 1.5rem; }
+      .page-hero h1 { font-size:2rem; }
+    }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo"><span class="dot"></span>METRO<span style="color:#fff;font-weight:400">store</span></a>
+  <ul class="nav-links">
+    <li><a href="/" {% if request.endpoint=='index' %}class="active"{% endif %}>Home</a></li>
+    <li><a href="/products" {% if request.endpoint=='products' %}class="active"{% endif %}>Products</a></li>
+    <li><a href="/customers" {% if request.endpoint=='customers' %}class="active"{% endif %}>Customers</a></li>
+    <li><a href="/employees" {% if request.endpoint=='employees' %}class="active"{% endif %}>Employees</a></li>
+    <li><a href="/suppliers" {% if request.endpoint=='suppliers' %}class="active"{% endif %}>Suppliers</a></li>
+    <li><a href="/sales" {% if request.endpoint=='sales' %}class="active"{% endif %}>Sales</a></li>
+    <li><a href="/departments" {% if request.endpoint=='departments' %}class="active"{% endif %}>Departments</a></li>
+  </ul>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-wrap">
+    {% for cat, msg in messages %}
+    <div class="flash {{ cat }}">{% if cat=='success' %}✓{% else %}✕{% endif %} {{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+<footer>
+  &copy; 2026 <strong>Metro Superstore</strong> &nbsp;·&nbsp; DBMS Lab Project &nbsp;·&nbsp; All rights reserved.
+</footer>
+
+<script>
+  // Auto-dismiss flash messages
+  setTimeout(() => {
+    document.querySelectorAll('.flash').forEach(el => {
+      el.style.transition = 'opacity 0.4s';
+      el.style.opacity = '0';
+      setTimeout(()=>el.remove(), 400);
+    });
+  }, 3500);
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
