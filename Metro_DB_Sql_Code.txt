@@ -1,0 +1,129 @@
+CREATE DATABASE metro;
+USE metro;
+CREATE TABLE Department (
+D_ID INT PRIMARY KEY,
+Name VARCHAR(100),
+Head VARCHAR(100),
+Location VARCHAR(255)
+);
+CREATE TABLE Supplier (
+S_ID INT PRIMARY KEY,
+Name VARCHAR(100),
+Contact_No VARCHAR(20)
+);
+CREATE TABLE Customer (
+C_ID INT PRIMARY KEY,
+Name VARCHAR(100),
+Phone_No VARCHAR(20)
+);
+CREATE TABLE Employee (
+E_ID INT PRIMARY KEY,
+Name VARCHAR(100),
+Salary INT,
+DOB DATE,
+Dept_ID INT,
+FOREIGN KEY (Dept_ID) REFERENCES Department(D_ID)
+);
+CREATE TABLE Product (
+P_ID INT PRIMARY KEY,
+Type VARCHAR(50),
+Quantity INT,
+Cost INT,
+Expiry DATE,
+Manufacturer VARCHAR(100)
+);
+CREATE TABLE Sales (
+Sa_ID INT PRIMARY KEY,
+Daily_Sales INT,
+Expense_Calculation VARCHAR(100),
+Dept_ID INT,
+FOREIGN KEY (Dept_ID) REFERENCES Department(D_ID)
+);
+CREATE TABLE Employee_Serves_Customer (
+Employee_ID INT,
+Customer_ID INT,
+PRIMARY KEY (Employee_ID, Customer_ID),
+FOREIGN KEY (Employee_ID) REFERENCES Employee(E_ID),
+FOREIGN KEY (Customer_ID) REFERENCES Customer(C_ID)
+);
+CREATE TABLE Purchases (
+Customer_ID INT,
+Product_ID INT,
+PRIMARY KEY (Customer_ID, Product_ID),
+FOREIGN KEY (Customer_ID) REFERENCES Customer(C_ID),
+FOREIGN KEY (Product_ID) REFERENCES Product(P_ID)
+);
+CREATE TABLE Supplier_Product (
+Supplier_ID INT,
+Product_ID INT,
+PRIMARY KEY (Supplier_ID, Product_ID),
+FOREIGN KEY (Supplier_ID) REFERENCES Supplier(S_ID),
+FOREIGN KEY (Product_ID) REFERENCES Product(P_ID)
+);
+CREATE TABLE Employee_Orders_Supplier (
+Employee_ID INT,
+Supplier_ID INT,
+PRIMARY KEY (Employee_ID, Supplier_ID),
+FOREIGN KEY (Employee_ID) REFERENCES Employee(E_ID),
+FOREIGN KEY (Supplier_ID) REFERENCES Supplier(S_ID)
+);
+INSERT INTO Department (D_ID, Name, Head, Location) VALUES
+(101, 'Sales & Marketing', 'Alice Johnson', 'Block A'),
+(102, 'Customer Service', 'Robert Smith', 'Block B'),
+(103, 'Inventory', 'Sarah Lee', 'Warehouse 1'),
+(104, 'Human Resources', 'Michael Scott', 'Block C'),
+(105, 'Logistics', 'Kevin Malone', 'Warehouse 2');
+INSERT INTO Supplier (S_ID, Name, Contact_No) VALUES
+(5001, 'Fresh Farms Ltd', '01711223344'),
+(5002, 'Global Electronics', '01855667788'),
+(5003, 'Office Essentials', '01900112233'),
+(5004, 'Fast Track Logistics', '01633445566'),
+(5005, 'Bio-Health Corp', '01599887766');
+INSERT INTO Customer (C_ID, Name, Phone_No) VALUES
+(8001, 'John Doe', '01511111111'),
+(8002, 'Jane Miller', '01622222222'),
+(8003, 'Michael Brown', '01733333333'),
+(8004, 'Emily Davis', '01844444444'),
+(8005, 'Chris Wilson', '01955555555');
+INSERT INTO Product (P_ID, Type, Quantity, Cost, Expiry, Manufacturer) VALUES
+(901, 'Dairy', 100, 50, '2026-12-01', 'Milk-Vita'),
+(902, 'Electronics', 15, 12000, '2030-01-01', 'Samsung'),
+(903, 'Snacks', 500, 20, '2026-06-15', 'Pran'),
+(904, 'Stationery', 1000, 10, '2028-12-31', 'Matador'),
+(905, 'Medicine', 200, 150, '2027-03-20', 'Square Phrama');
+INSERT INTO Employee (E_ID, Name, Salary, DOB, Dept_ID) VALUES
+(1, 'Emily Watson', 45000, '1992-04-10', 101),
+(2, 'David Clark', 38000, '1995-08-22', 102),
+(3, 'Sophia Chen', 52000, '1988-12-05', 103),
+(4, 'James Wilson', 42000, '1990-01-15', 104),
+(5, 'Linda Garcia', 47000, '1993-07-30', 105);
+INSERT INTO Sales (Sa_ID, Daily_Sales, Expense_Calculation, Dept_ID) VALUES
+(1, 15000, 'Operational: 2000, Marketing: 500', 101),
+(2, 8000, 'Operational: 1200, Logistics: 300', 101),
+(3, 12000, 'Operational: 1500, Ads: 1000', 101),
+(4, 5000, 'Maintenance: 800', 101),
+(5, 20000, 'Operational: 3000, Bonus: 1000', 101);
+INSERT INTO Employee_Serves_Customer (Employee_ID, Customer_ID) VALUES
+(1, 8001),
+(2, 8002),
+(3, 8003),
+(4, 8004),
+(5, 8005);
+INSERT INTO Purchases (Customer_ID, Product_ID) VALUES
+(8001, 901),
+(8002, 902),
+(8003, 903),
+(8004, 904),
+(8005, 905);
+INSERT INTO Supplier_Product (Supplier_ID, Product_ID) VALUES
+(5001, 901),
+(5002, 902),
+(5003, 903),
+(5004, 904),
+(5005, 905);
+INSERT INTO Employee_Orders_Supplier (Employee_ID, Supplier_ID) VALUES
+(1, 5001),
+(2, 5002),
+(3, 5003),
+(4, 5004),
+(5, 5005);
