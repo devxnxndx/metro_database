@@ -46,6 +46,8 @@
       transition: all 0.2s;
     }
     .nav-links a:hover, .nav-links a.active { color:var(--gold); background:rgba(200,134,10,0.1); }
+    .nav-links a.analytics-link { color: #c8b880; }
+    .nav-links a.analytics-link:hover, .nav-links a.analytics-link.active { color:#e8d060; background:rgba(232,208,32,0.1); }
 
     /* ── FLASH MESSAGES ── */
     .flash-wrap { position:fixed; top:72px; right:1.5rem; z-index:300; display:flex; flex-direction:column; gap:0.5rem; }
@@ -54,7 +56,7 @@
       display:flex; align-items:center; gap:0.5rem;
       animation: slideIn 0.3s ease;
       box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-      max-width:320px;
+      max-width:380px;
     }
     .flash.success { background:var(--forest); color:#d4f0e2; }
     .flash.error   { background:var(--red);    color:#fde8e8; }
@@ -80,7 +82,7 @@
     .page-hero p { color:var(--stone); font-size:0.95rem; }
 
     /* ── MAIN WRAPPER ── */
-    .wrap { max-width:1160px; margin:0 auto; padding:2.5rem 2.5rem; }
+    .wrap { max-width:1200px; margin:0 auto; padding:2.5rem 2.5rem; }
 
     /* ── CARDS ── */
     .card {
@@ -94,11 +96,11 @@
       display:inline-block; padding:0.25rem 0.7rem; border-radius:20px;
       font-size:0.7rem; font-weight:600; letter-spacing:0.5px;
     }
-    .badge-green { background:var(--mint); color:var(--forest); }
-    .badge-amber { background:#faecd0; color:#7a5200; }
-    .badge-blue  { background:#dde8f5; color:#1e3a5f; }
-    .badge-red   { background:#f5dddd; color:#7a1f1f; }
-    .badge-purple{ background:#ede8f5; color:#3d1e7a; }
+    .badge-green  { background:var(--mint); color:var(--forest); }
+    .badge-amber  { background:#faecd0; color:#7a5200; }
+    .badge-blue   { background:#dde8f5; color:#1e3a5f; }
+    .badge-red    { background:#f5dddd; color:#7a1f1f; }
+    .badge-purple { background:#ede8f5; color:#3d1e7a; }
 
     /* ── BUTTONS ── */
     .btn {
@@ -113,18 +115,65 @@
     .btn-gold:hover { background:#d4920e; transform:translateY(-1px); }
     .btn-ghost { background:transparent; color:var(--forest); border:1.5px solid var(--sage); }
     .btn-ghost:hover { background:var(--mint); }
-    .btn-sm { padding:0.4rem 0.9rem; font-size:0.78rem; }
+    .btn-danger { background:transparent; color:var(--red); border:1.5px solid #e5c5c5; }
+    .btn-danger:hover { background:#f5dddd; border-color:var(--red); }
+    .btn-sm { padding:0.35rem 0.8rem; font-size:0.76rem; }
+
+    /* ── SEARCH / SORT BAR ── */
+    .toolbar {
+      background:#fff; border:1px solid var(--line); border-radius:10px;
+      padding:0.9rem 1.25rem; display:flex; align-items:center; gap:0.75rem;
+      flex-wrap:wrap; margin-bottom:1.5rem;
+    }
+    .toolbar input[type=text], .toolbar select {
+      width:auto; flex:1; min-width:160px;
+      padding:0.5rem 0.85rem; border:1.5px solid var(--line); border-radius:6px;
+      font-size:0.85rem;
+    }
+    .toolbar label { font-size:0.75rem; color:var(--stone); font-weight:600;
+      letter-spacing:1px; text-transform:uppercase; white-space:nowrap; }
+    .sort-btn {
+      padding:0.45rem 0.9rem; border:1.5px solid var(--line); border-radius:6px;
+      background:#fff; font-size:0.78rem; font-weight:600; cursor:pointer;
+      font-family:'Outfit',sans-serif; color:var(--stone); transition:all 0.2s;
+      display:inline-flex; align-items:center; gap:0.3rem;
+    }
+    .sort-btn:hover, .sort-btn.active { border-color:var(--sage); color:var(--forest); background:var(--mint); }
+    .sort-btn.desc::after { content:' ↓'; }
+    .sort-btn.asc::after  { content:' ↑'; }
 
     /* ── TABLES ── */
     .table-wrap { background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
-    .table-wrap .table-header { padding:1.25rem 1.5rem; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; }
+    .table-wrap .table-header { padding:1.25rem 1.5rem; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; }
     .table-wrap .table-header h3 { font-family:'Cormorant Garamond',serif; font-size:1.3rem; }
     table { width:100%; border-collapse:collapse; }
     thead tr { background:#f9f7f3; }
-    th { padding:0.7rem 1.25rem; text-align:left; font-size:0.72rem; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--stone); border-bottom:1px solid var(--line); }
-    td { padding:0.85rem 1.25rem; font-size:0.88rem; border-bottom:1px solid #f5f0e8; }
+    th { padding:0.7rem 1.25rem; text-align:left; font-size:0.72rem; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--stone); border-bottom:1px solid var(--line); cursor:pointer; user-select:none; white-space:nowrap; }
+    th:hover { color:var(--forest); }
+    th .sort-icon { margin-left:4px; opacity:0.4; }
+    th.sorted .sort-icon { opacity:1; color:var(--forest); }
+    td { padding:0.85rem 1.25rem; font-size:0.88rem; border-bottom:1px solid #f5f0e8; vertical-align:middle; }
     tbody tr:last-child td { border-bottom:none; }
     tbody tr:hover td { background:#fdfaf5; }
+    .actions-cell { display:flex; gap:0.4rem; align-items:center; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5);
+      z-index:500; align-items:center; justify-content:center;
+      backdrop-filter:blur(3px);
+    }
+    .modal-overlay.open { display:flex; }
+    .modal {
+      background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:480px;
+      max-height:90vh; overflow-y:auto;
+      box-shadow:0 24px 64px rgba(0,0,0,0.2);
+      animation:modalIn 0.25s ease;
+    }
+    @keyframes modalIn { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+    .modal h2 { font-family:'Cormorant Garamond',serif; font-size:1.6rem; margin-bottom:0.25rem; }
+    .modal .modal-sub { font-size:0.83rem; color:var(--stone); margin-bottom:1.5rem; }
+    .modal-close { float:right; background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--stone); }
 
     /* ── FORM ELEMENTS ── */
     .form-group { margin-bottom:1rem; }
@@ -140,6 +189,13 @@
       outline:none; border-color:var(--sage);
       box-shadow: 0 0 0 3px rgba(58,125,90,0.12);
       background:#fff;
+    }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+    .new-id-badge {
+      display:inline-flex; align-items:center; gap:0.4rem;
+      background:var(--mint); color:var(--forest); border-radius:8px;
+      padding:0.5rem 1rem; font-size:0.85rem; font-weight:600;
+      margin-top:0.5rem;
     }
 
     /* ── FOOTER ── */
@@ -161,10 +217,13 @@
     .kpi-card.blue  .kpi-val { color:#2a4d7a; }
     .kpi-card.red   .kpi-val { color:var(--red); }
 
+    /* ── EMPTY STATE ── */
+    .empty-state { text-align:center; padding:3rem 2rem; color:var(--stone); font-size:0.9rem; }
+    .empty-state .ico { font-size:2.5rem; margin-bottom:0.5rem; }
+
     /* ── GRID UTILITIES ── */
     .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
     .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
-    .grid-auto { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:1.25rem; }
 
     @media(max-width:768px){
       nav { padding:0 1rem; }
@@ -173,6 +232,7 @@
       .grid-2,.grid-3 { grid-template-columns:1fr; }
       .page-hero { padding:2rem 1rem 1.5rem; }
       .page-hero h1 { font-size:2rem; }
+      .form-row { grid-template-columns:1fr; }
     }
   </style>
   {% block head %}{% endblock %}
@@ -182,13 +242,14 @@
 <nav>
   <a href="/" class="nav-logo"><span class="dot"></span>METRO<span style="color:#fff;font-weight:400">store</span></a>
   <ul class="nav-links">
-    <li><a href="/" {% if request.endpoint=='index' %}class="active"{% endif %}>Home</a></li>
-    <li><a href="/products" {% if request.endpoint=='products' %}class="active"{% endif %}>Products</a></li>
-    <li><a href="/customers" {% if request.endpoint=='customers' %}class="active"{% endif %}>Customers</a></li>
-    <li><a href="/employees" {% if request.endpoint=='employees' %}class="active"{% endif %}>Employees</a></li>
-    <li><a href="/suppliers" {% if request.endpoint=='suppliers' %}class="active"{% endif %}>Suppliers</a></li>
-    <li><a href="/sales" {% if request.endpoint=='sales' %}class="active"{% endif %}>Sales</a></li>
+    <li><a href="/"            {% if request.endpoint=='index'       %}class="active"{% endif %}>Home</a></li>
+    <li><a href="/products"    {% if request.endpoint=='products'    %}class="active"{% endif %}>Products</a></li>
+    <li><a href="/customers"   {% if request.endpoint=='customers'   %}class="active"{% endif %}>Customers</a></li>
+    <li><a href="/employees"   {% if request.endpoint=='employees'   %}class="active"{% endif %}>Employees</a></li>
+    <li><a href="/suppliers"   {% if request.endpoint=='suppliers'   %}class="active"{% endif %}>Suppliers</a></li>
+    <li><a href="/sales"       {% if request.endpoint=='sales'       %}class="active"{% endif %}>Sales</a></li>
     <li><a href="/departments" {% if request.endpoint=='departments' %}class="active"{% endif %}>Departments</a></li>
+    <li><a href="/analytics" class="analytics-link {% if request.endpoint=='analytics' %}active{% endif %}">📊 Analytics</a></li>
   </ul>
 </nav>
 
@@ -196,7 +257,7 @@
   {% if messages %}
   <div class="flash-wrap">
     {% for cat, msg in messages %}
-    <div class="flash {{ cat }}">{% if cat=='success' %}✓{% else %}✕{% endif %} {{ msg }}</div>
+    <div class="flash {{ cat }}">{% if cat=='success' %}✓{% else %}✕{% endif %} {{ msg|safe }}</div>
     {% endfor %}
   </div>
   {% endif %}
@@ -216,7 +277,41 @@
       el.style.opacity = '0';
       setTimeout(()=>el.remove(), 400);
     });
-  }, 3500);
+  }, 4000);
+
+  // Confirm delete helper
+  function confirmDelete(url, name) {
+    if (confirm(`Delete "${name}"? This cannot be undone.`)) {
+      window.location.href = url;
+    }
+  }
+
+  // Modal helpers
+  function openModal(id) {
+    document.getElementById(id).classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  // Close on overlay click
+  document.addEventListener('click', e => {
+    if (e.target.classList.contains('modal-overlay')) {
+      e.target.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+
+  // Fill edit modal with row data
+  function fillEdit(modalId, data) {
+    const modal = document.getElementById(modalId);
+    for (const [k, v] of Object.entries(data)) {
+      const el = modal.querySelector(`[name="${k}"]`);
+      if (el) el.value = v;
+    }
+    openModal(modalId);
+  }
 </script>
 {% block scripts %}{% endblock %}
 </body>

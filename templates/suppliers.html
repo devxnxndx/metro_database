@@ -5,27 +5,29 @@
 <style>
   .page-hero { background: linear-gradient(135deg, #0f1a3d, #1e2d6b); }
   .page-hero h1 { color: #fff; }
-  .page-hero p { color: #a0b0d8; }
+  .page-hero p  { color: #a0b0d8; }
+  .page-hero .eyebrow { color: #8090c8; }
 
-  .sup-list { display: flex; flex-direction: column; gap: 1rem; }
+  .sup-list { display:flex; flex-direction:column; gap:1rem; }
   .sup-card {
-    background: #fff; border: 1px solid var(--line); border-radius: 14px;
-    padding: 1.4rem 1.75rem;
-    display: grid; grid-template-columns: 56px 1fr auto auto; align-items: center; gap: 1.5rem;
-    transition: all 0.2s;
+    background:#fff; border:1px solid var(--line); border-radius:14px;
+    padding:1.25rem 1.5rem;
+    display:grid; grid-template-columns:52px 1fr auto auto auto; align-items:center; gap:1.25rem;
+    transition:all 0.2s;
   }
-  .sup-card:hover { border-color: #2a4d7a; box-shadow: 0 6px 24px rgba(42,77,122,0.1); }
+  .sup-card:hover { border-color:#2a4d7a; box-shadow:0 6px 24px rgba(42,77,122,0.1); }
   .sup-icon {
-    width: 52px; height: 52px; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+    width:48px; height:48px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0;
   }
-  .sup-info h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
-  .sup-info p { font-size: 0.8rem; color: var(--stone); }
-  .sup-products { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .sup-info h3 { font-size:1rem; font-weight:600; margin-bottom:0.2rem; }
+  .sup-info p  { font-size:0.8rem; color:var(--stone); }
+  .sup-products { display:flex; gap:0.35rem; flex-wrap:wrap; }
+  .sup-actions  { display:flex; gap:0.4rem; }
 
-  @media(max-width:640px){
-    .sup-card { grid-template-columns:56px 1fr; }
-    .sup-products, .sup-card .btn { display:none; }
+  @media(max-width:700px){
+    .sup-card { grid-template-columns:48px 1fr; }
+    .sup-products, .sup-actions { grid-column:1/-1; }
   }
 </style>
 {% endblock %}
@@ -34,16 +36,36 @@
 <div class="page-hero">
   <div class="eyebrow">Supply Chain</div>
   <h1>Suppliers</h1>
-  <p>Our trusted network of supply chain partners</p>
+  <p>Manage trusted supply chain partners</p>
 </div>
 
 <div class="wrap">
-  <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;margin-bottom:1.5rem;">Supplier Directory</h2>
-  {% set bg_list = ['#e8f5ee','#e8edf8','#f5f0e0','#f5e8f5','#e8f5f0'] %}
+
+  <!-- Toolbar -->
+  <form method="GET" action="/suppliers" class="toolbar">
+    <label>Search:</label>
+    <input type="text" name="search" value="{{ search }}" placeholder="Name, contact or ID…" style="max-width:220px;">
+    <label>Sort:</label>
+    <select name="sort" onchange="this.form.submit()">
+      <option value="S_ID"       {% if sort=='S_ID'       %}selected{% endif %}>ID</option>
+      <option value="Name"       {% if sort=='Name'       %}selected{% endif %}>Name</option>
+      <option value="Contact_No" {% if sort=='Contact_No' %}selected{% endif %}>Contact</option>
+    </select>
+    <select name="order" onchange="this.form.submit()">
+      <option value="ASC"  {% if order=='ASC'  %}selected{% endif %}>↑ Ascending</option>
+      <option value="DESC" {% if order=='DESC' %}selected{% endif %}>↓ Descending</option>
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+    <a href="/suppliers" class="btn btn-ghost btn-sm">Reset</a>
+    <button type="button" class="btn btn-gold btn-sm" style="margin-left:auto;" onclick="openModal('addSupModal')">+ Add Supplier</button>
+  </form>
+
+  <!-- Supplier Cards -->
+  {% set bg_list  = ['#e8f5ee','#e8edf8','#f5f0e0','#f5e8f5','#e8f5f0'] %}
   {% set ico_list = ['🌾','💻','📦','🚛','🏥'] %}
   <div class="sup-list">
     {% for s in suppliers %}
-    <!-- s: S_ID, Name, Contact_No, Products(grouped) -->
+    <!-- s: S_ID, Name, Contact_No, Products -->
     <div class="sup-card">
       <div class="sup-icon" style="background:{{ bg_list[loop.index0 % bg_list|length] }}">
         {{ ico_list[loop.index0 % ico_list|length] }}
@@ -58,14 +80,69 @@
           <span class="badge badge-green">{{ prod }}</span>
           {% endfor %}
         {% else %}
-        <span class="badge badge-amber">No products linked</span>
+          <span class="badge badge-amber">No products linked</span>
         {% endif %}
       </div>
-      <button class="btn btn-ghost btn-sm">Contact</button>
+      <div class="sup-actions">
+        <button class="btn btn-ghost btn-sm" onclick="fillEdit('editSupModal',{
+          s_id:'{{ s[0] }}',
+          name:'{{ s[1]|replace("'","\\'")|replace('"','\\"') }}',
+          contact:'{{ s[2] }}'
+        })">✏️ Edit</button>
+        <button class="btn btn-danger btn-sm"
+          onclick="confirmDelete('/suppliers?delete={{ s[0] }}','{{ s[1]|replace("'","\\'")|replace('"','\\"') }}')">🗑️</button>
+      </div>
     </div>
     {% else %}
-    <p style="color:var(--stone);">No suppliers found.</p>
+    <div class="empty-state"><div class="ico">🚛</div><p>No suppliers found.</p></div>
     {% endfor %}
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="addSupModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('addSupModal')">✕</button>
+    <h2>Add Supplier</h2>
+    <p class="modal-sub">ID will be auto-assigned</p>
+    <form method="POST" action="/suppliers">
+      <input type="hidden" name="action" value="add">
+      <div class="form-group">
+        <label>Supplier Name</label>
+        <input type="text" name="name" placeholder="e.g. Fresh Farms Ltd" required>
+      </div>
+      <div class="form-group">
+        <label>Contact Number</label>
+        <input type="tel" name="contact" placeholder="e.g. 01711000000" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem;">
+        ✓ Add Supplier
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editSupModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('editSupModal')">✕</button>
+    <h2>Edit Supplier</h2>
+    <p class="modal-sub">Update supplier details</p>
+    <form method="POST" action="/suppliers">
+      <input type="hidden" name="action" value="update">
+      <input type="hidden" name="s_id">
+      <div class="form-group">
+        <label>Supplier Name</label>
+        <input type="text" name="name" required>
+      </div>
+      <div class="form-group">
+        <label>Contact Number</label>
+        <input type="tel" name="contact" required>
+      </div>
+      <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;margin-top:0.5rem;">
+        ✓ Save Changes
+      </button>
+    </form>
   </div>
 </div>
 {% endblock %}

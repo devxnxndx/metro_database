@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% block title %}Analytics — Metro Superstore{% endblock %}
+
+{% block head %}
+<style>
+  .page-hero { background: linear-gradient(135deg, #0d1a0d, #1a3a1a, #2d5a2d); }
+  .page-hero h1 { color: #fff; }
+  .page-hero p  { color: #80c890; }
+  .page-hero .eyebrow { color: #60b870; }
+
+  .section-heading {
+    font-family:'Cormorant Garamond',serif; font-size:1.8rem; font-weight:700;
+    margin-bottom:0.3rem; color:var(--ink);
+  }
+  .section-sub { font-size:0.85rem; color:var(--stone); margin-bottom:1.5rem; }
+  .sql-pill {
+    display:inline-block; background:#1e1e1e; color:#7ec8a0;
+    font-size:0.72rem; font-family:monospace; padding:0.3rem 0.75rem;
+    border-radius:6px; margin-bottom:1.25rem; white-space:nowrap;
+    overflow-x:auto; max-width:100%; vertical-align:middle;
+  }
+  .sql-pill .kw { color:#c792ea; }
+  .sql-pill .fn { color:#ffcb6b; }
+  .sql-pill .tbl { color:#82aaff; }
+
+  .section-block { margin-bottom:3.5rem; }
+
+  /* Stat table rows */
+  .stat-val { font-weight:700; color:var(--forest); font-size:0.95rem; }
+  .stat-val.amber { color:var(--amber); }
+  .stat-val.blue  { color:#2a4d7a; }
+  .stat-val.red   { color:var(--red); }
+
+  /* Mini bar inside table */
+  .mini-bar-wrap { display:flex; align-items:center; gap:0.5rem; min-width:80px; }
+  .mini-bar { height:8px; border-radius:4px; background:var(--forest); min-width:4px; }
+  .mini-bar.amber { background:var(--amber); }
+
+  /* Product type cards */
+  .type-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1rem; }
+  .type-card {
+    background:#fff; border:1px solid var(--line); border-radius:12px; padding:1.25rem;
+    transition:all 0.2s;
+  }
+  .type-card:hover { border-color:var(--sage); box-shadow:0 6px 20px rgba(27,77,53,0.1); }
+  .type-card .tc-icon { font-size:2rem; margin-bottom:0.5rem; }
+  .type-card .tc-name { font-weight:600; font-size:0.9rem; margin-bottom:0.75rem; }
+  .type-card .tc-row { display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:0.25rem; }
+  .type-card .tc-row span { font-weight:600; color:var(--ink); }
+  .type-card .tc-row { color:var(--stone); }
+
+  /* Customer purchases bar chart */
+  .cust-bars { display:flex; flex-direction:column; gap:0.6rem; }
+  .cust-bar-row { display:flex; align-items:center; gap:0.75rem; }
+  .cust-bar-name { font-size:0.78rem; color:var(--stone); width:120px; text-align:right; flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cust-bar-track { flex:1; background:#f0ebe3; border-radius:4px; height:24px; overflow:hidden; }
+  .cust-bar-fill { height:100%; border-radius:4px; display:flex; align-items:center;
+    padding-left:0.5rem; font-size:0.72rem; font-weight:600; color:#fff; transition:width 0.8s ease; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="eyebrow">Data Analytics</div>
+  <h1>Analytics</h1>
+  <p>Aggregate insights using GROUP BY, HAVING and aggregate functions</p>
+</div>
+
+<div class="wrap">
+
+  <!-- ① SALES BY DEPARTMENT -->
+  <div class="section-block">
+    <h2 class="section-heading">① Sales Performance by Department</h2>
+    <div class="sql-pill">
+      <span class="kw">SELECT</span> d.Name, <span class="fn">COUNT</span>(*), <span class="fn">SUM</span>(Daily_Sales), <span class="fn">AVG</span>(Daily_Sales), <span class="fn">MAX</span>(Daily_Sales), <span class="fn">MIN</span>(Daily_Sales)
+      <span class="kw">FROM</span> <span class="tbl">Sales</span> <span class="kw">JOIN</span> <span class="tbl">Department</span>
+      <span class="kw">GROUP BY</span> d.D_ID <span class="kw">HAVING</span> <span class="fn">SUM</span>(Daily_Sales) &gt; 0
+    </div>
+    <p class="section-sub">Total, average, peak and minimum sales grouped by department — only departments with positive sales shown (HAVING clause).</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Department</th>
+            <th>Records</th>
+            <th>Total Sales</th>
+            <th>Avg Sales</th>
+            <th>Peak Sales</th>
+            <th>Min Sales</th>
+            <th>Visual</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if dept_sales %}
+          {% set max_total = dept_sales[0][2] %}
+          {% for row in dept_sales %}
+          <!-- row: Name, num_records, total_sales, avg_sales, peak_sales, min_sales -->
+          {% set pct = ((row[2] / max_total) * 100) | int if max_total > 0 else 0 %}
+          <tr>
+            <td><strong>{{ row[0] }}</strong></td>
+            <td><span class="badge badge-blue">{{ row[1] }}</span></td>
+            <td class="stat-val">₹{{ row[2] }}</td>
+            <td class="stat-val amber">₹{{ row[3] | int }}</td>
+            <td class="stat-val blue">₹{{ row[4] }}</td>
+            <td class="stat-val red">₹{{ row[5] }}</td>
+            <td>
+              <div class="mini-bar-wrap">
+                <div class="mini-bar" style="width:{{ pct }}px; max-width:80px;"></div>
+                <span style="font-size:0.7rem;color:var(--stone);">{{ pct }}%</span>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr><td colspan="7" style="color:var(--stone);padding:1.5rem;">No data.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ② PRODUCT ANALYSIS BY TYPE -->
+  <div class="section-block">
+    <h2 class="section-heading">② Product Analysis by Category</h2>
+    <div class="sql-pill">
+      <span class="kw">SELECT</span> Type, <span class="fn">COUNT</span>(*), <span class="fn">AVG</span>(Cost), <span class="fn">MAX</span>(Cost), <span class="fn">MIN</span>(Cost), <span class="fn">SUM</span>(Quantity)
+      <span class="kw">FROM</span> <span class="tbl">Product</span> <span class="kw">GROUP BY</span> Type <span class="kw">ORDER BY</span> avg_cost <span class="kw">DESC</span>
+    </div>
+    <p class="section-sub">Average cost, price range, and total stock grouped by product category.</p>
+    {% set ptype_icons = {'Dairy':'🥛','Electronics':'📱','Snacks':'🍟','Stationery':'✏️','Medicine':'💊'} %}
+    <div class="type-grid">
+      {% for row in top_products %}
+      <!-- row: Type, num_products, avg_cost, max_cost, min_cost, total_stock -->
+      <div class="type-card">
+        <div class="tc-icon">{{ ptype_icons.get(row[0], '🛒') }}</div>
+        <div class="tc-name">{{ row[0] }}</div>
+        <div class="tc-row">Items <span>{{ row[1] }}</span></div>
+        <div class="tc-row">Avg Price <span>₹{{ row[2] | int }}</span></div>
+        <div class="tc-row">Max Price <span>₹{{ row[3] }}</span></div>
+        <div class="tc-row">Min Price <span>₹{{ row[4] }}</span></div>
+        <div class="tc-row">Total Stock <span>{{ row[5] }} units</span></div>
+      </div>
+      {% else %}
+      <p style="color:var(--stone);">No data.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ③ SALARY STATS BY DEPARTMENT -->
+  <div class="section-block">
+    <h2 class="section-heading">③ Salary Statistics by Department</h2>
+    <div class="sql-pill">
+      <span class="kw">SELECT</span> d.Name, <span class="fn">COUNT</span>(e.E_ID), <span class="fn">SUM</span>(Salary), <span class="fn">AVG</span>(Salary), <span class="fn">MAX</span>(Salary), <span class="fn">MIN</span>(Salary)
+      <span class="kw">FROM</span> <span class="tbl">Employee</span> <span class="kw">JOIN</span> <span class="tbl">Department</span>
+      <span class="kw">GROUP BY</span> d.D_ID <span class="kw">HAVING</span> <span class="fn">COUNT</span>(e.E_ID) &gt;= 1
+    </div>
+    <p class="section-sub">Payroll and headcount per department — only departments with at least 1 employee (HAVING clause).</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Department</th>
+            <th>Headcount</th>
+            <th>Total Payroll</th>
+            <th>Avg Salary</th>
+            <th>Highest</th>
+            <th>Lowest</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in salary_stats %}
+          <!-- row: Name, headcount, payroll, avg_salary, max_salary, min_salary -->
+          <tr>
+            <td><strong>{{ row[0] }}</strong></td>
+            <td><span class="badge badge-purple">{{ row[1] }} staff</span></td>
+            <td class="stat-val">₹{{ row[2] }}</td>
+            <td class="stat-val amber">₹{{ row[3] | int }}</td>
+            <td class="stat-val blue">₹{{ row[4] }}</td>
+            <td class="stat-val red">₹{{ row[5] }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" style="color:var(--stone);padding:1.5rem;">No data.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ④ CUSTOMER PURCHASE COUNT -->
+  <div class="section-block">
+    <h2 class="section-heading">④ Customer Purchase Activity</h2>
+    <div class="sql-pill">
+      <span class="kw">SELECT</span> c.Name, <span class="fn">COUNT</span>(p.Product_ID)
+      <span class="kw">FROM</span> <span class="tbl">Customer</span> <span class="kw">LEFT JOIN</span> <span class="tbl">Purchases</span>
+      <span class="kw">GROUP BY</span> c.C_ID <span class="kw">ORDER BY</span> purchases <span class="kw">DESC</span>
+    </div>
+    <p class="section-sub">Number of purchases per customer grouped and ranked.</p>
+    {% if customer_stats %}
+    {% set max_p = customer_stats[0][1] if customer_stats[0][1] > 0 else 1 %}
+    {% set bar_colors = ['var(--forest)','#2a4d7a','var(--amber)','var(--red)','#553c9a'] %}
+    <div class="cust-bars">
+      {% for row in customer_stats %}
+      {% set pct = ((row[1] / max_p) * 100) | int if max_p > 0 else 0 %}
+      <div class="cust-bar-row">
+        <div class="cust-bar-name" title="{{ row[0] }}">{{ row[0] }}</div>
+        <div class="cust-bar-track">
+          <div class="cust-bar-fill"
+               style="width:{{ [pct, 15]|max }}%;background:{{ bar_colors[loop.index0 % bar_colors|length] }}">
+            {{ row[1] }} purchase{{ 's' if row[1] != 1 else '' }}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:var(--stone);">No customer data.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

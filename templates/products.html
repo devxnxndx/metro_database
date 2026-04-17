@@ -4,107 +4,240 @@
 {% block head %}
 <style>
   .page-hero { background: linear-gradient(135deg, var(--ink) 0%, #0f2d1c 100%); }
-  .page-hero h1, .page-hero .eyebrow, .page-hero p { color-adjust: exact; }
   .page-hero h1 { color: #fff; }
-  .page-hero p { color: #7da98e; }
+  .page-hero p  { color: #7da98e; }
+  .page-hero .eyebrow { color: #5aad7e; }
 
   .filter-bar {
-    background: #fff; border-bottom: 1px solid var(--line);
-    padding: 0.85rem 2.5rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+    background:#fff; border-bottom:1px solid var(--line);
+    padding:0.85rem 2.5rem; display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;
   }
-  .filter-bar label { font-size: 0.75rem; color: var(--stone); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-right: 0.25rem; }
   .filter-chip {
-    padding: 0.38rem 1rem; border-radius: 20px; border: 1.5px solid var(--line);
-    background: #fff; cursor: pointer; font-size: 0.8rem; font-family: 'Outfit', sans-serif;
-    transition: all 0.18s; font-weight: 500;
+    padding:0.38rem 1rem; border-radius:20px; border:1.5px solid var(--line);
+    background:#fff; cursor:pointer; font-size:0.8rem; font-family:'Outfit',sans-serif;
+    transition:all 0.18s; font-weight:500;
   }
-  .filter-chip:hover { border-color: var(--sage); color: var(--forest); }
-  .filter-chip.on { background: var(--forest); color: #fff; border-color: var(--forest); }
+  .filter-chip:hover { border-color:var(--sage); color:var(--forest); }
+  .filter-chip.on { background:var(--forest); color:#fff; border-color:var(--forest); }
 
-  .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+  .products-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1.25rem; }
   .p-card {
-    background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
-    transition: all 0.25s;
+    background:#fff; border:1px solid var(--line); border-radius:14px; overflow:hidden;
+    transition:all 0.25s; position:relative;
   }
-  .p-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(27,77,53,0.13); border-color: var(--sage); }
-  .p-card-img {
-    height: 140px; display: flex; align-items: center; justify-content: center;
-    font-size: 3.5rem;
-  }
-  .bg-dairy   { background: linear-gradient(135deg,#e8f5ee,#c8e6d4); }
-  .bg-elec    { background: linear-gradient(135deg,#e8edf5,#c8d4e6); }
-  .bg-snack   { background: linear-gradient(135deg,#f5f0e0,#e6d8b8); }
-  .bg-stat    { background: linear-gradient(135deg,#f5e8f5,#e6c8e6); }
-  .bg-med     { background: linear-gradient(135deg,#e8f5f0,#c8e6dc); }
-  .p-body { padding: 1.1rem 1.25rem; }
-  .p-type { font-size: 0.68rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--sage); }
-  .p-name { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 700; margin: 0.25rem 0 0.5rem; }
-  .p-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; }
-  .p-price { font-size: 1.25rem; font-weight: 700; color: var(--forest); }
-  .p-qty { font-size: 0.78rem; color: var(--stone); }
-  .p-foot { padding: 0.25rem 1.25rem 1.1rem; }
-  .p-expiry { font-size: 0.73rem; color: var(--stone); margin-bottom: 0.6rem; }
-  .p-actions { display: flex; gap: 0.5rem; }
+  .p-card:hover { transform:translateY(-4px); box-shadow:0 14px 36px rgba(27,77,53,0.13); border-color:var(--sage); }
+  .p-card-img { height:120px; display:flex; align-items:center; justify-content:center; font-size:3rem; }
+  .bg-dairy { background:linear-gradient(135deg,#e8f5ee,#c8e6d4); }
+  .bg-elec  { background:linear-gradient(135deg,#e8edf5,#c8d4e6); }
+  .bg-snack { background:linear-gradient(135deg,#f5f0e0,#e6d8b8); }
+  .bg-stat  { background:linear-gradient(135deg,#f5e8f5,#e6c8e6); }
+  .bg-med   { background:linear-gradient(135deg,#e8f5f0,#c8e6dc); }
+  .bg-other { background:linear-gradient(135deg,#f5f5f0,#e0ddd5); }
+  .p-body { padding:1rem 1.2rem 0.5rem; }
+  .p-type { font-size:0.68rem; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--sage); }
+  .p-name { font-family:'Cormorant Garamond',serif; font-size:1.2rem; font-weight:700; margin:0.2rem 0 0.4rem; }
+  .p-meta { display:flex; justify-content:space-between; align-items:center; }
+  .p-price { font-size:1.15rem; font-weight:700; color:var(--forest); }
+  .p-qty   { font-size:0.78rem; color:var(--stone); }
+  .p-foot  { padding:0.5rem 1.2rem 1rem; }
+  .p-expiry { font-size:0.72rem; color:var(--stone); margin-bottom:0.5rem; }
+  .p-actions { display:flex; gap:0.4rem; }
   .p-actions .btn { flex:1; justify-content:center; }
+  .p-id-tag { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.35); color:#fff;
+    font-size:0.65rem; padding:0.2rem 0.55rem; border-radius:8px; font-weight:600; }
+
+  .add-panel {
+    background:#fff; border:1px solid var(--line); border-radius:14px;
+    padding:1.75rem; margin-bottom:2rem;
+  }
+  .add-panel h2 { font-family:'Cormorant Garamond',serif; font-size:1.5rem; margin-bottom:0.25rem; }
+  .add-panel .sub { font-size:0.83rem; color:var(--stone); margin-bottom:1.25rem; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="page-hero">
-  <div class="eyebrow">Our Inventory</div>
+  <div class="eyebrow">Inventory Management</div>
   <h1>Products</h1>
-  <p>Browse all products available across Metro Superstore departments</p>
+  <p>Browse, filter, search and manage all Metro products</p>
 </div>
 
+<!-- Filter Bar -->
 <div class="filter-bar">
-  <label>Filter:</label>
-  <button class="filter-chip on" onclick="filter('All',this)">All</button>
-  <button class="filter-chip" onclick="filter('Dairy',this)">🥛 Dairy</button>
-  <button class="filter-chip" onclick="filter('Electronics',this)">📱 Electronics</button>
-  <button class="filter-chip" onclick="filter('Snacks',this)">🍟 Snacks</button>
-  <button class="filter-chip" onclick="filter('Stationery',this)">✏️ Stationery</button>
-  <button class="filter-chip" onclick="filter('Medicine',this)">💊 Medicine</button>
+  <span style="font-size:0.75rem;color:var(--stone);font-weight:600;letter-spacing:1px;text-transform:uppercase;">Filter:</span>
+  <button class="filter-chip {% if not ftype %}on{% endif %}" onclick="setFilter('',this)">All</button>
+  <button class="filter-chip {% if ftype=='Dairy' %}on{% endif %}" onclick="setFilter('Dairy',this)">🥛 Dairy</button>
+  <button class="filter-chip {% if ftype=='Electronics' %}on{% endif %}" onclick="setFilter('Electronics',this)">📱 Electronics</button>
+  <button class="filter-chip {% if ftype=='Snacks' %}on{% endif %}" onclick="setFilter('Snacks',this)">🍟 Snacks</button>
+  <button class="filter-chip {% if ftype=='Stationery' %}on{% endif %}" onclick="setFilter('Stationery',this)">✏️ Stationery</button>
+  <button class="filter-chip {% if ftype=='Medicine' %}on{% endif %}" onclick="setFilter('Medicine',this)">💊 Medicine</button>
 </div>
 
 <div class="wrap">
-  <div class="products-grid" id="grid">
+
+  <!-- Toolbar: search + sort -->
+  <form method="GET" action="/products" class="toolbar" id="filterForm">
+    <input type="hidden" name="type" value="{{ ftype }}">
+    <label>Search:</label>
+    <input type="text" name="search" value="{{ search }}" placeholder="Type or manufacturer…" style="max-width:220px;">
+    <label>Sort by:</label>
+    <select name="sort" onchange="this.form.submit()">
+      <option value="P_ID"     {% if sort=='P_ID'     %}selected{% endif %}>ID</option>
+      <option value="Type"     {% if sort=='Type'     %}selected{% endif %}>Type</option>
+      <option value="Cost"     {% if sort=='Cost'     %}selected{% endif %}>Price</option>
+      <option value="Quantity" {% if sort=='Quantity' %}selected{% endif %}>Stock</option>
+      <option value="Expiry"   {% if sort=='Expiry'   %}selected{% endif %}>Expiry</option>
+    </select>
+    <select name="order" onchange="this.form.submit()">
+      <option value="ASC"  {% if order=='ASC'  %}selected{% endif %}>↑ Ascending</option>
+      <option value="DESC" {% if order=='DESC' %}selected{% endif %}>↓ Descending</option>
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+    <a href="/products" class="btn btn-ghost btn-sm">Reset</a>
+    <button type="button" class="btn btn-gold btn-sm" style="margin-left:auto;" onclick="openModal('addProductModal')">+ Add Product</button>
+  </form>
+
+  <!-- Products Grid -->
   {% set icons = {'Dairy':'🥛','Electronics':'📱','Snacks':'🍟','Stationery':'✏️','Medicine':'💊'} %}
   {% set bgs   = {'Dairy':'bg-dairy','Electronics':'bg-elec','Snacks':'bg-snack','Stationery':'bg-stat','Medicine':'bg-med'} %}
-  {% for p in products %}
-  <!-- p: P_ID, Type, Quantity, Cost, Expiry, Manufacturer -->
-  <div class="p-card" data-type="{{ p[1] }}">
-    <div class="p-card-img {{ bgs.get(p[1],'bg-dairy') }}">{{ icons.get(p[1],'🛒') }}</div>
-    <div class="p-body">
-      <div class="p-type">{{ p[1] }}</div>
-      <div class="p-name">{{ p[5] }}</div>
-      <div class="p-meta">
-        <span class="p-price">₹{{ p[3] }}</span>
-        <span class="p-qty">{{ p[2] }} units</span>
+  <div class="products-grid" id="grid">
+    {% for p in products %}
+    <!-- p: P_ID, Type, Quantity, Cost, Expiry, Manufacturer -->
+    <div class="p-card">
+      <span class="p-id-tag">#{{ p[0] }}</span>
+      <div class="p-card-img {{ bgs.get(p[1],'bg-other') }}">{{ icons.get(p[1],'🛒') }}</div>
+      <div class="p-body">
+        <div class="p-type">{{ p[1] }}</div>
+        <div class="p-name">{{ p[5] }}</div>
+        <div class="p-meta">
+          <span class="p-price">₹{{ p[3] }}</span>
+          <span class="p-qty">{{ p[2] }} units</span>
+        </div>
+      </div>
+      <div class="p-foot">
+        <div class="p-expiry">📅 Expires: {{ p[4] }}</div>
+        <div class="p-actions">
+          <button class="btn btn-ghost btn-sm" onclick="fillEdit('editProductModal',{
+            p_id:'{{ p[0] }}', type:'{{ p[1] }}', quantity:'{{ p[2] }}',
+            cost:'{{ p[3] }}', expiry:'{{ p[4] }}', manufacturer:'{{ p[5] }}'
+          })">✏️ Edit</button>
+          <button class="btn btn-danger btn-sm"
+            onclick="confirmDelete('/products?delete={{ p[0] }}','{{ p[5] }}')">🗑️</button>
+        </div>
       </div>
     </div>
-    <div class="p-foot">
-      <div class="p-expiry">📅 Expires: {{ p[4] }} &nbsp;|&nbsp; ID: {{ p[0] }}</div>
-      <div class="p-actions">
-        <button class="btn btn-primary btn-sm">Add to Cart</button>
-        <button class="btn btn-ghost btn-sm">Details</button>
-      </div>
+    {% else %}
+    <div class="empty-state" style="grid-column:1/-1;">
+      <div class="ico">📦</div>
+      <p>No products found{% if search %} for "{{ search }}"{% endif %}.</p>
     </div>
+    {% endfor %}
   </div>
-  {% else %}
-  <p style="color:var(--stone); padding:2rem 0;">No products found. Make sure the database is connected.</p>
-  {% endfor %}
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="addProductModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('addProductModal')">✕</button>
+    <h2>Add Product</h2>
+    <p class="modal-sub">Fill in details — ID will be auto-assigned</p>
+    <form method="POST" action="/products">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Product Type</label>
+          <select name="type" required>
+            <option value="">Select…</option>
+            <option>Dairy</option><option>Electronics</option><option>Snacks</option>
+            <option>Stationery</option><option>Medicine</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Manufacturer</label>
+          <input type="text" name="manufacturer" placeholder="e.g. Samsung" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Quantity</label>
+          <input type="number" name="quantity" placeholder="e.g. 50" min="0" required>
+        </div>
+        <div class="form-group">
+          <label>Cost (₹)</label>
+          <input type="number" name="cost" placeholder="e.g. 500" min="0" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Expiry Date</label>
+        <input type="date" name="expiry" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem;">
+        ✓ Add Product
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editProductModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('editProductModal')">✕</button>
+    <h2>Edit Product</h2>
+    <p class="modal-sub">Update the product details below</p>
+    <form method="POST" action="/products">
+      <input type="hidden" name="action" value="update">
+      <input type="hidden" name="p_id" id="edit_p_id">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Type</label>
+          <select name="type" required>
+            <option>Dairy</option><option>Electronics</option><option>Snacks</option>
+            <option>Stationery</option><option>Medicine</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Manufacturer</label>
+          <input type="text" name="manufacturer" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Quantity</label>
+          <input type="number" name="quantity" min="0" required>
+        </div>
+        <div class="form-group">
+          <label>Cost (₹)</label>
+          <input type="number" name="cost" min="0" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Expiry Date</label>
+        <input type="date" name="expiry" required>
+      </div>
+      <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;margin-top:0.5rem;">
+        ✓ Save Changes
+      </button>
+    </form>
   </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-function filter(type, btn) {
-  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  document.querySelectorAll('.p-card').forEach(c => {
-    c.style.display = (type === 'All' || c.dataset.type === type) ? '' : 'none';
-  });
+function setFilter(type, btn) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('type', type);
+  url.searchParams.delete('search');
+  window.location.href = url.toString();
+}
+
+// Override fillEdit for product (hidden input needs special handling)
+function fillEdit(modalId, data) {
+  const modal = document.getElementById(modalId);
+  for (const [k, v] of Object.entries(data)) {
+    const el = modal.querySelector(`[name="${k}"]`) || modal.querySelector(`#edit_${k}`);
+    if (el) el.value = v;
+  }
+  openModal(modalId);
 }
 </script>
 {% endblock %}

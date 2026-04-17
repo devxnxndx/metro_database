@@ -5,76 +5,179 @@
 <style>
   .page-hero { background: linear-gradient(135deg, #1a0f0f, #3d1a1a); }
   .page-hero h1 { color: #fff; }
-  .page-hero p { color: #c8a0a0; }
+  .page-hero p  { color: #c8a0a0; }
+  .page-hero .eyebrow { color: #e09080; }
 
-  .emp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1.25rem; margin-bottom: 3rem; }
-  .emp-card {
-    background: #fff; border: 1px solid var(--line); border-radius: 14px;
-    padding: 1.75rem 1.25rem; text-align: center; transition: all 0.25s;
-  }
-  .emp-card:hover { transform: translateY(-5px); box-shadow: 0 14px 36px rgba(0,0,0,0.1); border-color: var(--amber); }
   .emp-av {
-    width: 68px; height: 68px; border-radius: 50%; margin: 0 auto 1rem;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.3rem; font-weight: 700; color: #fff;
+    width:38px; height:38px; border-radius:50%; flex-shrink:0;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:0.85rem; font-weight:700; color:#fff;
   }
-  .emp-card h3 { font-size: 0.98rem; font-weight: 600; margin-bottom: 0.3rem; }
-  .emp-dept { margin-bottom: 0.85rem; }
-  .emp-stats { border-top: 1px solid var(--line); padding-top: 0.85rem; margin-top: 0.25rem; }
-  .emp-stat-row { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--stone); margin-bottom: 0.3rem; }
-  .emp-stat-row span { font-weight: 600; color: var(--ink); }
-
-  .dept-section h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.75rem; margin-bottom: 1.25rem; }
-  .dept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
-  .dept-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 1.25rem; transition: all 0.2s; }
-  .dept-card:hover { border-color: var(--sage); box-shadow: 0 4px 14px rgba(27,77,53,0.09); }
-  .dept-card .d-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
-  .dept-card h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.2rem; }
-  .dept-card .d-loc { font-size: 0.78rem; color: var(--stone); }
-  .dept-card .d-head { font-size: 0.78rem; color: var(--forest); font-weight: 600; margin-top: 0.4rem; }
+  .name-cell { display:flex; align-items:center; gap:0.75rem; }
+  .salary-cell { font-weight:700; color:var(--forest); }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="page-hero">
-  <div class="eyebrow">Our People</div>
+  <div class="eyebrow">HR Management</div>
   <h1>Employees</h1>
-  <p>Meet the Metro team across all departments</p>
+  <p>Manage staff records across all departments</p>
 </div>
 
 <div class="wrap">
-  <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;margin-bottom:1.25rem;">Staff Directory</h2>
 
-  {% set palette = ['linear-gradient(135deg,#1b4d35,#2d9e5e)','linear-gradient(135deg,#7a5200,#c8860a)','linear-gradient(135deg,#2a4d7a,#4a7fb5)','linear-gradient(135deg,#7a1f1f,#c05050)','linear-gradient(135deg,#4a2a7a,#7e5fc0)'] %}
-  <div class="emp-grid">
-    {% for e in employees %}
-    <!-- e: E_ID, Name, Dept, DOB, Salary -->
-    <div class="emp-card">
-      <div class="emp-av" style="background:{{ palette[loop.index0 % palette|length] }}">
-        {{ e[1][:2].upper() }}
-      </div>
-      <h3>{{ e[1] }}</h3>
-      <div class="emp-dept"><span class="badge badge-green">{{ e[2] or 'N/A' }}</span></div>
-      <div class="emp-stats">
-        <div class="emp-stat-row">DOB <span>{{ e[3] }}</span></div>
-        <div class="emp-stat-row">Salary <span>₹{{ e[4] }}</span></div>
-        <div class="emp-stat-row">ID <span>#{{ e[0] }}</span></div>
-      </div>
+  <!-- Toolbar -->
+  <form method="GET" action="/employees" class="toolbar">
+    <label>Search:</label>
+    <input type="text" name="search" value="{{ search }}" placeholder="Name, dept or ID…" style="max-width:200px;">
+    <label>Dept:</label>
+    <select name="dept" onchange="this.form.submit()" style="max-width:180px;">
+      <option value="">All Departments</option>
+      {% for d in depts %}
+      <option value="{{ d[0] }}" {% if fdept==d[0]|string %}selected{% endif %}>{{ d[1] }}</option>
+      {% endfor %}
+    </select>
+    <label>Sort:</label>
+    <select name="sort" onchange="this.form.submit()">
+      <option value="E_ID"   {% if sort=='E_ID'   %}selected{% endif %}>ID</option>
+      <option value="Name"   {% if sort=='Name'   %}selected{% endif %}>Name</option>
+      <option value="Salary" {% if sort=='Salary' %}selected{% endif %}>Salary</option>
+      <option value="DOB"    {% if sort=='DOB'    %}selected{% endif %}>DOB</option>
+    </select>
+    <select name="order" onchange="this.form.submit()">
+      <option value="ASC"  {% if order=='ASC'  %}selected{% endif %}>↑ Ascending</option>
+      <option value="DESC" {% if order=='DESC' %}selected{% endif %}>↓ Descending</option>
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+    <a href="/employees" class="btn btn-ghost btn-sm">Reset</a>
+    <button type="button" class="btn btn-gold btn-sm" style="margin-left:auto;" onclick="openModal('addEmpModal')">+ Add Employee</button>
+  </form>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <div class="table-header">
+      <h3>Staff Directory</h3>
+      <span class="badge badge-green">{{ employees|length }} employees</span>
     </div>
-    {% else %}
-    <p style="color:var(--stone);">No employees found.</p>
-    {% endfor %}
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th><th>Name</th><th>Department</th><th>DOB</th><th>Salary</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set palette = ['linear-gradient(135deg,#1b4d35,#2d9e5e)','linear-gradient(135deg,#7a5200,#c8860a)','linear-gradient(135deg,#2a4d7a,#4a7fb5)','linear-gradient(135deg,#7a1f1f,#c05050)','linear-gradient(135deg,#4a2a7a,#7e5fc0)'] %}
+        {% for e in employees %}
+        <!-- e: E_ID, Name, Dept, DOB, Salary, Dept_ID -->
+        <tr>
+          <td><span class="badge badge-blue">#{{ e[0] }}</span></td>
+          <td>
+            <div class="name-cell">
+              <div class="emp-av" style="background:{{ palette[loop.index0 % palette|length] }}">
+                {{ e[1][:2].upper() }}
+              </div>
+              {{ e[1] }}
+            </div>
+          </td>
+          <td><span class="badge badge-green">{{ e[2] or 'N/A' }}</span></td>
+          <td>{{ e[3] }}</td>
+          <td class="salary-cell">₹{{ e[4] }}</td>
+          <td>
+            <div class="actions-cell">
+              <button class="btn btn-ghost btn-sm" onclick="fillEdit('editEmpModal',{
+                e_id:'{{ e[0] }}',
+                name:'{{ e[1]|replace("'","\\'")|replace('"','\\"') }}',
+                salary:'{{ e[4] }}',
+                dob:'{{ e[3] }}',
+                dept_id:'{{ e[5] }}'
+              })">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm"
+                onclick="confirmDelete('/employees?delete={{ e[0] }}','{{ e[1]|replace("'","\\'")|replace('"','\\"') }}')">🗑️</button>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6"><div class="empty-state"><div class="ico">🧑‍💼</div><p>No employees found.</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
+</div>
 
-  <div class="dept-section">
-    <h2>Departments</h2>
-    <div class="dept-grid">
-      <div class="dept-card"><div class="d-icon">📈</div><h4>Sales & Marketing</h4><div class="d-loc">Block A</div><div class="d-head">Head: Alice Johnson</div></div>
-      <div class="dept-card"><div class="d-icon">🤝</div><h4>Customer Service</h4><div class="d-loc">Block B</div><div class="d-head">Head: Robert Smith</div></div>
-      <div class="dept-card"><div class="d-icon">📦</div><h4>Inventory</h4><div class="d-loc">Warehouse 1</div><div class="d-head">Head: Sarah Lee</div></div>
-      <div class="dept-card"><div class="d-icon">👥</div><h4>Human Resources</h4><div class="d-loc">Block C</div><div class="d-head">Head: Michael Scott</div></div>
-      <div class="dept-card"><div class="d-icon">🚛</div><h4>Logistics</h4><div class="d-loc">Warehouse 2</div><div class="d-head">Head: Kevin Malone</div></div>
-    </div>
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="addEmpModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('addEmpModal')">✕</button>
+    <h2>Add Employee</h2>
+    <p class="modal-sub">ID will be auto-assigned</p>
+    <form method="POST" action="/employees">
+      <input type="hidden" name="action" value="add">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" name="name" placeholder="e.g. Alice Johnson" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Salary (₹)</label>
+          <input type="number" name="salary" placeholder="e.g. 40000" min="0" required>
+        </div>
+        <div class="form-group">
+          <label>Date of Birth</label>
+          <input type="date" name="dob" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Department</label>
+        <select name="dept_id" required>
+          <option value="">Select…</option>
+          {% for d in depts %}
+          <option value="{{ d[0] }}">{{ d[1] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem;">
+        ✓ Add Employee
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editEmpModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('editEmpModal')">✕</button>
+    <h2>Edit Employee</h2>
+    <p class="modal-sub">Update employee details</p>
+    <form method="POST" action="/employees">
+      <input type="hidden" name="action" value="update">
+      <input type="hidden" name="e_id">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" name="name" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Salary (₹)</label>
+          <input type="number" name="salary" min="0" required>
+        </div>
+        <div class="form-group">
+          <label>Date of Birth</label>
+          <input type="date" name="dob" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Department</label>
+        <select name="dept_id" required>
+          {% for d in depts %}
+          <option value="{{ d[0] }}">{{ d[1] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;margin-top:0.5rem;">
+        ✓ Save Changes
+      </button>
+    </form>
   </div>
 </div>
 {% endblock %}

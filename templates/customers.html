@@ -5,42 +5,24 @@
 <style>
   .page-hero { background: linear-gradient(135deg, #0f2d1c, var(--forest)); }
   .page-hero h1 { color: #fff; }
-  .page-hero p { color: #7da98e; }
+  .page-hero p  { color: #7da98e; }
+  .page-hero .eyebrow { color: #5aad7e; }
 
-  .layout { display: grid; grid-template-columns: 1fr 340px; gap: 2rem; }
-
-  .cust-list { display: flex; flex-direction: column; gap: 0.85rem; }
-  .cust-card {
-    background: #fff; border: 1px solid var(--line); border-radius: 12px;
-    padding: 1.1rem 1.4rem; display: flex; align-items: center; gap: 1.1rem;
-    transition: all 0.2s;
-  }
-  .cust-card:hover { border-color: var(--sage); box-shadow: 0 4px 18px rgba(27,77,53,0.09); }
+  .cust-table-wrap { background:#fff; border:1px solid var(--line); border-radius:14px; overflow:hidden; }
   .avatar {
-    width: 48px; height: 48px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1rem; font-weight: 700; color: #fff; flex-shrink: 0;
+    width:38px; height:38px; border-radius:50%; flex-shrink:0;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:0.85rem; font-weight:700; color:#fff;
   }
-  .av-colors { }
-  .cust-info { flex:1; }
-  .cust-info h4 { font-size: 0.95rem; font-weight: 500; margin-bottom: 0.15rem; }
-  .cust-info p { font-size: 0.8rem; color: var(--stone); }
-  .cust-id { font-size: 0.72rem; color: var(--stone); background: var(--cream); padding: 0.2rem 0.6rem; border-radius: 8px; }
+  .name-cell { display:flex; align-items:center; gap:0.75rem; }
 
-  .register-box {
-    background: #fff; border: 1px solid var(--line); border-radius: 14px;
-    padding: 1.75rem; position: sticky; top: 80px;
+  .trigger-note {
+    background:linear-gradient(135deg,#e8f5ee,#d0eedf);
+    border:1px solid #a8d8bc; border-radius:10px;
+    padding:0.9rem 1.25rem; margin-bottom:1.5rem;
+    font-size:0.83rem; color:var(--forest); display:flex; align-items:flex-start; gap:0.6rem;
   }
-  .register-box h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; margin-bottom: 0.3rem; }
-  .register-box .sub { font-size: 0.83rem; color: var(--stone); margin-bottom: 1.5rem; }
-
-  .empty-state {
-    text-align: center; padding: 4rem 2rem;
-    color: var(--stone); font-size: 0.9rem;
-  }
-  .empty-state .ico { font-size: 3rem; margin-bottom: 0.75rem; }
-
-  @media(max-width:768px){ .layout { grid-template-columns:1fr; } }
+  .trigger-note strong { font-weight:600; }
 </style>
 {% endblock %}
 
@@ -48,66 +30,133 @@
 <div class="page-hero">
   <div class="eyebrow">Customer Management</div>
   <h1>Customers</h1>
-  <p>Manage customer records and register new customers</p>
+  <p>Register, update, search and manage customer records</p>
 </div>
 
 <div class="wrap">
-  <div class="layout">
 
-    <!-- Customer List -->
-    <div>
-      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;margin-bottom:1.25rem;">
-        Registered Customers
-        <span style="font-family:'Outfit',sans-serif;font-size:0.85rem;color:var(--stone);font-weight:400;margin-left:0.5rem;">
-          ({{ customers|length }} total)
-        </span>
-      </h2>
+  <!-- Trigger info -->
+  <div class="trigger-note">
+    <span style="font-size:1.1rem;">⚡</span>
+    <div><strong>Auto-Trigger Active:</strong> When a new customer is registered, a database trigger automatically assigns them to the least-busy Customer Service employee and logs the action in <em>Customer_Audit</em>.</div>
+  </div>
 
-      {% set palette = ['#1b4d35','#c8860a','#2a4d7a','#7a1f1f','#4a2a7a','#1a5e50','#6b3a1f'] %}
-      <div class="cust-list">
+  <!-- Toolbar -->
+  <form method="GET" action="/customers" class="toolbar">
+    <label>Search:</label>
+    <input type="text" name="search" value="{{ search }}" placeholder="Name, phone or ID…" style="max-width:220px;">
+    <label>Sort by:</label>
+    <select name="sort" onchange="this.form.submit()">
+      <option value="C_ID"     {% if sort=='C_ID'     %}selected{% endif %}>ID</option>
+      <option value="Name"     {% if sort=='Name'     %}selected{% endif %}>Name</option>
+      <option value="Phone_No" {% if sort=='Phone_No' %}selected{% endif %}>Phone</option>
+    </select>
+    <select name="order" onchange="this.form.submit()">
+      <option value="ASC"  {% if order=='ASC'  %}selected{% endif %}>↑ Ascending</option>
+      <option value="DESC" {% if order=='DESC' %}selected{% endif %}>↓ Descending</option>
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+    <a href="/customers" class="btn btn-ghost btn-sm">Reset</a>
+    <button type="button" class="btn btn-gold btn-sm" style="margin-left:auto;" onclick="openModal('addCustModal')">+ Register Customer</button>
+  </form>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <div class="table-header">
+      <h3>Registered Customers</h3>
+      <span class="badge badge-green">{{ customers|length }} total</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Phone No.</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set palette = ['#1b4d35','#c8860a','#2a4d7a','#7a1f1f','#4a2a7a','#1a5e50','#6b3a1f'] %}
         {% for c in customers %}
-        <!-- c: C_ID, Name, Phone_No -->
-        <div class="cust-card">
-          <div class="avatar" style="background:{{ palette[loop.index0 % palette|length] }}">
-            {{ c[1][:2].upper() }}
-          </div>
-          <div class="cust-info">
-            <h4>{{ c[1] }}</h4>
-            <p>📞 {{ c[2] }}</p>
-          </div>
-          <span class="cust-id">#{{ c[0] }}</span>
-          <span class="badge badge-green">Active</span>
-        </div>
+        <tr>
+          <td><span class="badge badge-blue">#{{ c[0] }}</span></td>
+          <td>
+            <div class="name-cell">
+              <div class="avatar" style="background:{{ palette[loop.index0 % palette|length] }}">
+                {{ c[1][:2].upper() }}
+              </div>
+              {{ c[1] }}
+            </div>
+          </td>
+          <td>📞 {{ c[2] }}</td>
+          <td><span class="badge badge-green">Active</span></td>
+          <td>
+            <div class="actions-cell">
+              <button class="btn btn-ghost btn-sm" onclick="fillEdit('editCustModal',{
+                c_id:'{{ c[0] }}', name:'{{ c[1]|replace("'","\\'")|replace('"','\\"') }}', phoneno:'{{ c[2] }}'
+              })">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm"
+                onclick="confirmDelete('/customers?delete={{ c[0] }}','{{ c[1]|replace("'","\\'")|replace('"','\\"') }}')">🗑️</button>
+            </div>
+          </td>
+        </tr>
         {% else %}
-        <div class="empty-state">
-          <div class="ico">👥</div>
-          <p>No customers yet. Register one using the form →</p>
-        </div>
+        <tr>
+          <td colspan="5">
+            <div class="empty-state"><div class="ico">👥</div><p>No customers found.</p></div>
+          </td>
+        </tr>
         {% endfor %}
-      </div>
-    </div>
+      </tbody>
+    </table>
+  </div>
+</div>
 
-    <!-- Register Form -->
-    <div>
-      <div class="register-box">
-        <h2>Register Customer</h2>
-        <p class="sub">Add a new customer to the Metro database</p>
-        <form method="POST" action="/customers">
-          <div class="form-group">
-            <label for="name">Full Name</label>
-            <input type="text" id="name" name="name" placeholder="e.g. John Smith" required/>
-          </div>
-          <div class="form-group">
-            <label for="phoneno">Phone Number</label>
-            <input type="tel" id="phoneno" name="phoneno" placeholder="e.g. 01500000000" required/>
-          </div>
-          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem;">
-            ✓ Register Customer
-          </button>
-        </form>
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="addCustModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('addCustModal')">✕</button>
+    <h2>Register Customer</h2>
+    <p class="modal-sub">ID will be auto-assigned. A trigger will auto-assign an employee.</p>
+    <form method="POST" action="/customers">
+      <input type="hidden" name="action" value="add">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" name="name" placeholder="e.g. John Smith" required>
       </div>
-    </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" name="phoneno" placeholder="e.g. 01500000000" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem;">
+        ✓ Register Customer
+      </button>
+    </form>
+  </div>
+</div>
 
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editCustModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('editCustModal')">✕</button>
+    <h2>Edit Customer</h2>
+    <p class="modal-sub">Update customer information</p>
+    <form method="POST" action="/customers">
+      <input type="hidden" name="action" value="update">
+      <input type="hidden" name="c_id">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" name="name" required>
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" name="phoneno" required>
+      </div>
+      <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;margin-top:0.5rem;">
+        ✓ Save Changes
+      </button>
+    </form>
   </div>
 </div>
 {% endblock %}

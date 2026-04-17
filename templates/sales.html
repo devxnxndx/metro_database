@@ -5,25 +5,25 @@
 <style>
   .page-hero { background: linear-gradient(135deg, #1a1a0d, #3d3800); }
   .page-hero h1 { color: #fff; }
-  .page-hero p { color: #c8b880; }
+  .page-hero p  { color: #c8b880; }
+  .page-hero .eyebrow { color: #d4a830; }
 
-  .layout-sales { display: grid; grid-template-columns: 1fr 360px; gap: 2rem; }
+  .layout-sales { display:grid; grid-template-columns:1fr 340px; gap:2rem; }
 
-  .amount { font-weight: 700; color: var(--forest); }
-  .expense-cell { font-size: 0.78rem; color: var(--stone); max-width: 200px; }
+  .amount { font-weight:700; color:var(--forest); }
+  .expense-cell { font-size:0.78rem; color:var(--stone); max-width:180px; }
 
-  /* Bar chart */
-  .chart-box { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 1.5rem; }
-  .chart-box h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; margin-bottom: 1.25rem; }
-  .bar-chart { display: flex; flex-direction: column; gap: 0.8rem; }
-  .bar-row { display: flex; align-items: center; gap: 0.75rem; }
-  .bar-lbl { font-size: 0.75rem; color: var(--stone); width: 55px; text-align: right; flex-shrink: 0; }
-  .bar-track { flex:1; background: #f0ebe3; border-radius: 4px; height: 30px; overflow: hidden; }
+  .chart-box { background:#fff; border:1px solid var(--line); border-radius:12px; padding:1.5rem; position:sticky; top:80px; }
+  .chart-box h3 { font-family:'Cormorant Garamond',serif; font-size:1.2rem; margin-bottom:1.25rem; }
+  .bar-chart { display:flex; flex-direction:column; gap:0.7rem; }
+  .bar-row { display:flex; align-items:center; gap:0.75rem; }
+  .bar-lbl { font-size:0.72rem; color:var(--stone); width:52px; text-align:right; flex-shrink:0; }
+  .bar-track { flex:1; background:#f0ebe3; border-radius:4px; height:28px; overflow:hidden; }
   .bar-fill {
-    height: 100%; border-radius: 4px;
-    display: flex; align-items: center; padding-left: 0.75rem;
-    font-size: 0.78rem; font-weight: 600; color: #fff;
-    transition: width 0.8s ease;
+    height:100%; border-radius:4px;
+    display:flex; align-items:center; padding-left:0.6rem;
+    font-size:0.75rem; font-weight:600; color:#fff;
+    transition:width 0.8s ease;
   }
 
   @media(max-width:860px){ .layout-sales { grid-template-columns:1fr; } }
@@ -32,33 +32,48 @@
 
 {% block content %}
 <div class="page-hero">
-  <div class="eyebrow">Dashboard</div>
+  <div class="eyebrow">Sales Dashboard</div>
   <h1>Sales Overview</h1>
   <p>Daily sales performance and expense tracking</p>
 </div>
 
 <div class="wrap">
+
   <!-- KPIs -->
   <div class="kpi-grid">
-    <div class="kpi-card green">
-      <div class="kpi-val">₹{{ kpi.peak }}</div>
-      <div class="kpi-label">Peak Daily Sales</div>
-    </div>
-    <div class="kpi-card amber">
-      <div class="kpi-val">₹{{ kpi.avg }}</div>
-      <div class="kpi-label">Avg Daily Sales</div>
-    </div>
-    <div class="kpi-card blue">
-      <div class="kpi-val">₹{{ kpi.total }}</div>
-      <div class="kpi-label">Total Sales</div>
-    </div>
-    <div class="kpi-card red">
-      <div class="kpi-val">{{ kpi.count if kpi.count else 0 }}</div>
-      <div class="kpi-label">Sales Records</div>
-    </div>
+    <div class="kpi-card green"><div class="kpi-val">₹{{ kpi.peak }}</div><div class="kpi-label">Peak Daily Sales</div></div>
+    <div class="kpi-card amber"><div class="kpi-val">₹{{ kpi.avg }}</div><div class="kpi-label">Avg Daily Sales</div></div>
+    <div class="kpi-card blue"><div class="kpi-val">₹{{ kpi.total }}</div><div class="kpi-label">Total Sales</div></div>
+    <div class="kpi-card red"><div class="kpi-val">{{ kpi.count }}</div><div class="kpi-label">Sales Records</div></div>
   </div>
 
+  <!-- Toolbar -->
+  <form method="GET" action="/sales" class="toolbar">
+    <label>Search:</label>
+    <input type="text" name="search" value="{{ search }}" placeholder="Dept name or amount…" style="max-width:200px;">
+    <label>Dept:</label>
+    <select name="dept" onchange="this.form.submit()" style="max-width:180px;">
+      <option value="">All Depts</option>
+      {% for d in depts %}
+      <option value="{{ d[0] }}" {% if fdept==d[0]|string %}selected{% endif %}>{{ d[1] }}</option>
+      {% endfor %}
+    </select>
+    <label>Sort:</label>
+    <select name="sort" onchange="this.form.submit()">
+      <option value="Sa_ID"       {% if sort=='Sa_ID'       %}selected{% endif %}>ID</option>
+      <option value="Daily_Sales" {% if sort=='Daily_Sales' %}selected{% endif %}>Sales Amount</option>
+    </select>
+    <select name="order" onchange="this.form.submit()">
+      <option value="ASC"  {% if order=='ASC'  %}selected{% endif %}>↑ Ascending</option>
+      <option value="DESC" {% if order=='DESC' %}selected{% endif %}>↓ Descending</option>
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+    <a href="/sales" class="btn btn-ghost btn-sm">Reset</a>
+    <button type="button" class="btn btn-gold btn-sm" style="margin-left:auto;" onclick="openModal('addSaleModal')">+ Add Record</button>
+  </form>
+
   <div class="layout-sales">
+
     <!-- Table -->
     <div class="table-wrap">
       <div class="table-header">
@@ -67,19 +82,31 @@
       </div>
       <table>
         <thead>
-          <tr><th>#</th><th>Daily Sales</th><th>Expense Breakdown</th><th>Department</th></tr>
+          <tr><th>#</th><th>Daily Sales</th><th>Expense Breakdown</th><th>Department</th><th>Actions</th></tr>
         </thead>
         <tbody>
           {% for s in sales %}
-          <!-- s: Sa_ID, Daily_Sales, Expense_Calculation, Dept Name -->
+          <!-- s: Sa_ID, Daily_Sales, Expense_Calculation, Dept Name, Dept_ID -->
           <tr>
             <td><span class="badge badge-blue">SA-{{ '%03d'|format(s[0]) }}</span></td>
             <td class="amount">₹{{ s[1] }}</td>
             <td class="expense-cell">{{ s[2] }}</td>
             <td>{{ s[3] or 'N/A' }}</td>
+            <td>
+              <div class="actions-cell">
+                <button class="btn btn-ghost btn-sm" onclick="fillEdit('editSaleModal',{
+                  sa_id:'{{ s[0] }}',
+                  daily_sales:'{{ s[1] }}',
+                  expense:'{{ s[2]|replace("'","\\'")|replace('"','\\"') }}',
+                  dept_id:'{{ s[4] }}'
+                })">✏️</button>
+                <button class="btn btn-danger btn-sm"
+                  onclick="confirmDelete('/sales?delete={{ s[0] }}','SA-{{ '%03d'|format(s[0]) }}')">🗑️</button>
+              </div>
+            </td>
           </tr>
           {% else %}
-          <tr><td colspan="4" style="color:var(--stone);padding:2rem;">No sales records found.</td></tr>
+          <tr><td colspan="5"><div class="empty-state"><div class="ico">📊</div><p>No records found.</p></div></td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -108,6 +135,70 @@
       <p style="color:var(--stone);font-size:0.9rem;">No data to display.</p>
       {% endif %}
     </div>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="addSaleModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('addSaleModal')">✕</button>
+    <h2>Add Sales Record</h2>
+    <p class="modal-sub">ID will be auto-assigned</p>
+    <form method="POST" action="/sales">
+      <input type="hidden" name="action" value="add">
+      <div class="form-group">
+        <label>Daily Sales (₹)</label>
+        <input type="number" name="daily_sales" placeholder="e.g. 15000" min="0" required>
+      </div>
+      <div class="form-group">
+        <label>Expense Breakdown</label>
+        <input type="text" name="expense" placeholder="e.g. Operational: 2000, Ads: 500" required>
+      </div>
+      <div class="form-group">
+        <label>Department</label>
+        <select name="dept_id" required>
+          <option value="">Select…</option>
+          {% for d in depts %}
+          <option value="{{ d[0] }}">{{ d[1] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem;">
+        ✓ Add Record
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editSaleModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('editSaleModal')">✕</button>
+    <h2>Edit Sales Record</h2>
+    <p class="modal-sub">Update sales data</p>
+    <form method="POST" action="/sales">
+      <input type="hidden" name="action" value="update">
+      <input type="hidden" name="sa_id">
+      <div class="form-group">
+        <label>Daily Sales (₹)</label>
+        <input type="number" name="daily_sales" min="0" required>
+      </div>
+      <div class="form-group">
+        <label>Expense Breakdown</label>
+        <input type="text" name="expense" required>
+      </div>
+      <div class="form-group">
+        <label>Department</label>
+        <select name="dept_id" required>
+          {% for d in depts %}
+          <option value="{{ d[0] }}">{{ d[1] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;margin-top:0.5rem;">
+        ✓ Save Changes
+      </button>
+    </form>
   </div>
 </div>
 {% endblock %}

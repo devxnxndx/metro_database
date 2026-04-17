@@ -5,27 +5,29 @@
 <style>
   .page-hero { background: linear-gradient(135deg, #1a1a3d, #2c3d6b); }
   .page-hero h1 { color: #fff; }
-  .page-hero p { color: #a0b0d0; }
+  .page-hero p  { color: #a0b0d0; }
+  .page-hero .eyebrow { color: #8090c8; }
 
-  {% set dept_icons = ['📈','🤝','📦','👥','🚛'] %}
-  .dept-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+  .dept-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1.25rem; }
   .d-card {
-    background: #fff; border: 1px solid var(--line); border-radius: 14px;
-    padding: 1.75rem; transition: all 0.25s; position: relative; overflow: hidden;
+    background:#fff; border:1px solid var(--line); border-radius:14px;
+    padding:1.75rem; transition:all 0.25s; position:relative; overflow:hidden;
   }
   .d-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-    background: linear-gradient(90deg, var(--forest), var(--sage));
+    content:''; position:absolute; top:0; left:0; right:0; height:4px;
+    background:linear-gradient(90deg, var(--forest), var(--sage));
   }
-  .d-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(27,77,53,0.12); border-color: var(--sage); }
+  .d-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(27,77,53,0.12); border-color:var(--sage); }
   .d-icon-wrap {
-    width: 54px; height: 54px; background: var(--mint); border-radius: 12px;
-    display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
-    margin-bottom: 1.1rem;
+    width:52px; height:52px; background:var(--mint); border-radius:12px;
+    display:flex; align-items:center; justify-content:center; font-size:1.4rem;
+    margin-bottom:1rem;
   }
-  .d-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.4rem; }
-  .d-card .d-row { display: flex; gap: 0.5rem; align-items: center; font-size: 0.82rem; color: var(--stone); margin-top: 0.5rem; }
-  .d-card .d-row strong { color: var(--ink); font-weight: 600; }
+  .d-card h3 { font-family:'Cormorant Garamond',serif; font-size:1.25rem; font-weight:700; margin-bottom:0.35rem; }
+  .d-row { display:flex; gap:0.4rem; align-items:center; font-size:0.82rem; color:var(--stone); margin-top:0.4rem; }
+  .d-row strong { color:var(--ink); font-weight:600; }
+  .d-actions { display:flex; gap:0.4rem; margin-top:1rem; padding-top:0.75rem; border-top:1px solid var(--line); }
+  .d-actions .btn { flex:1; justify-content:center; }
 </style>
 {% endblock %}
 
@@ -33,11 +35,32 @@
 <div class="page-hero">
   <div class="eyebrow">Organisation</div>
   <h1>Departments</h1>
-  <p>Metro's operational departments and their leadership</p>
+  <p>Metro's operational structure and leadership</p>
 </div>
 
 <div class="wrap">
-  {% set icons = ['📈','🤝','📦','👥','🚛'] %}
+
+  <!-- Toolbar -->
+  <form method="GET" action="/departments" class="toolbar">
+    <label>Search:</label>
+    <input type="text" name="search" value="{{ search }}" placeholder="Name, head or location…" style="max-width:220px;">
+    <label>Sort:</label>
+    <select name="sort" onchange="this.form.submit()">
+      <option value="D_ID"     {% if sort=='D_ID'     %}selected{% endif %}>ID</option>
+      <option value="Name"     {% if sort=='Name'     %}selected{% endif %}>Name</option>
+      <option value="Head"     {% if sort=='Head'     %}selected{% endif %}>Head</option>
+      <option value="Location" {% if sort=='Location' %}selected{% endif %}>Location</option>
+    </select>
+    <select name="order" onchange="this.form.submit()">
+      <option value="ASC"  {% if order=='ASC'  %}selected{% endif %}>↑ Ascending</option>
+      <option value="DESC" {% if order=='DESC' %}selected{% endif %}>↓ Descending</option>
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+    <a href="/departments" class="btn btn-ghost btn-sm">Reset</a>
+    <button type="button" class="btn btn-gold btn-sm" style="margin-left:auto;" onclick="openModal('addDeptModal')">+ Add Department</button>
+  </form>
+
+  {% set icons = ['📈','🤝','📦','👥','🚛','🏢','⚙️'] %}
   <div class="dept-cards">
     {% for d in departments %}
     <!-- d: D_ID, Name, Head, Location -->
@@ -47,10 +70,75 @@
       <span class="badge badge-green">ID: {{ d[0] }}</span>
       <div class="d-row">🧑‍💼 Head: <strong>{{ d[2] }}</strong></div>
       <div class="d-row">📍 Location: <strong>{{ d[3] }}</strong></div>
+      <div class="d-actions">
+        <button class="btn btn-ghost btn-sm" onclick="fillEdit('editDeptModal',{
+          d_id:'{{ d[0] }}',
+          name:'{{ d[1]|replace("'","\\'")|replace('"','\\"') }}',
+          head:'{{ d[2]|replace("'","\\'")|replace('"','\\"') }}',
+          location:'{{ d[3]|replace("'","\\'")|replace('"','\\"') }}'
+        })">✏️ Edit</button>
+        <button class="btn btn-danger btn-sm"
+          onclick="confirmDelete('/departments?delete={{ d[0] }}','{{ d[1]|replace("'","\\'")|replace('"','\\"') }}')">🗑️ Delete</button>
+      </div>
     </div>
     {% else %}
-    <p style="color:var(--stone);">No departments found.</p>
+    <div class="empty-state"><div class="ico">🏢</div><p>No departments found.</p></div>
     {% endfor %}
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="addDeptModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('addDeptModal')">✕</button>
+    <h2>Add Department</h2>
+    <p class="modal-sub">ID will be auto-assigned</p>
+    <form method="POST" action="/departments">
+      <input type="hidden" name="action" value="add">
+      <div class="form-group">
+        <label>Department Name</label>
+        <input type="text" name="name" placeholder="e.g. Finance" required>
+      </div>
+      <div class="form-group">
+        <label>Department Head</label>
+        <input type="text" name="head" placeholder="e.g. Jane Doe" required>
+      </div>
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" name="location" placeholder="e.g. Block D" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem;">
+        ✓ Add Department
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editDeptModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('editDeptModal')">✕</button>
+    <h2>Edit Department</h2>
+    <p class="modal-sub">Update department details</p>
+    <form method="POST" action="/departments">
+      <input type="hidden" name="action" value="update">
+      <input type="hidden" name="d_id">
+      <div class="form-group">
+        <label>Department Name</label>
+        <input type="text" name="name" required>
+      </div>
+      <div class="form-group">
+        <label>Department Head</label>
+        <input type="text" name="head" required>
+      </div>
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" name="location" required>
+      </div>
+      <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;margin-top:0.5rem;">
+        ✓ Save Changes
+      </button>
+    </form>
   </div>
 </div>
 {% endblock %}
